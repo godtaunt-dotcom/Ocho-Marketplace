@@ -1,0 +1,12 @@
+{
+  "name": "ocho-project-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix ocho run dev",
+    "dev:server": "npm --prefix ocho run dev:server",
+    "dev:client": "npm --prefix ocho run dev:client",
+    "build": "npm --prefix ocho run build",
+    "test": "npm --prefix ocho run test"
+  }
+}
