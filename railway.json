@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd ocho/server && npx prisma migrate deploy && node dist/index.js",
+    "startCommand": "cd ocho/server && npx prisma migrate deploy && npx prisma db seed && node dist/index.js",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
