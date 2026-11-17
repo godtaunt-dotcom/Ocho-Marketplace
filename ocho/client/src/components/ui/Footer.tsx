@@ -1,8 +1,12 @@
 import React from 'react';
 import { Logo } from './Logo';
-import { ShieldCheck, Heart, MapPin, Mail } from 'lucide-react';
+import { ShieldCheck, Heart, MapPin, Mail, Layers } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+export interface FooterProps {
+  onShowcaseClick?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
   return (
     <footer className="bg-white border-t border-brand-border text-brand-text-secondary text-xs select-none">
       {/* Upper Footer: Links & Info */}
@@ -48,6 +52,18 @@ export const Footer: React.FC = () => {
                 Jastip Jatinangor (Segera hadir)
               </span>
             </li>
+            {onShowcaseClick && (
+              <li className="pt-2">
+                <button
+                  type="button"
+                  onClick={onShowcaseClick}
+                  className="text-brand-purple hover:underline font-semibold flex items-center gap-1 text-[11px]"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Lihat Desain Sistem &amp; Showcase</span>
+                </button>
+              </li>
+            )}
           </ul>
         </div>
 

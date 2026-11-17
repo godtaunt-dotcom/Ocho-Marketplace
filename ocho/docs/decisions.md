@@ -63,3 +63,47 @@
   - 1 pesanan selesai (`OCH-20261023-0001`) membuktikan formula komisi 20% pemotongan saldo penjual dan pembayaran QRIS settled.
   - 1 pesanan ditahan (`OCH-20261023-0002`) membuktikan reservasi stok 30 menit.
 
+## Keputusan Halaman Publik & Marketplace Frontend (Tahap 3)
+
+### 1. Zero-Dependency Hash Router
+- **Pendekatan**: Menggunakan routing berbasis hash peramban bawaan (`window.location.hash` dan event `hashchange`) tanpa dependensi eksternal (`react-router-dom`).
+- **Alasan**: Menghindari beban ukuran bundle, menjamin deep-linking bekerja seketika (`#/` untuk Beranda/Katalog, `#/items/:id` untuk Detail Barang, `#/showcase` untuk Component Showcase), dan kebal terhadap kendala 404 fallback pada server statis.
+
+### 2. Halaman Beranda & Penelusuran Katalog (Beranda)
+- **Hero & Identity**: Banner eksklusif mahasiswa Unpad dengan visual kartu verifikasi 3 langkah ("Verifikasi sekali, langsung jalan").
+- **Kategori Interaktif**: Bar kategori horizontal dengan kalkulasi live count jumlah barang per kategori.
+- **Multi-Filter Toolbar**: Filter pencarian teks bebas (sinkron dengan search bar Navbar), filter kondisi barang (Semua, Baru, Seperti Baru, Bekas Layak), filter opsi pengiriman (Semua, Pickup Kampus, Bisa Diantar), dan pengurutan (Terbaru, Harga Terendah, Harga Tertinggi).
+- **Responsive Product Grid**: Desain grid responsif (1 kolom mobile, 2 kolom tablet, 3-4 kolom desktop) dengan kartu barang memuat foto, tag kategori, spesifikasi ukuran (wajib fashion), lokasi pickup terdekat, badge verified penjual, dan badge metode antar.
+- **UX States**: Dilengkapi skeleton loading card teranimasi (`ProductCardSkeleton`), empty state informatif dengan tombol reset filter, pagination, serta banner edukasi keamanan transaksi kampus (rekomendasi titik temu Gerlam, Bale Santika, dan Gedung Rektorat).
+
+### 3. Halaman Detail Barang (Item Detail Page)
+- **Tata Letak Desktop Dua Kolom (Two-Column Layout)**:
+  - **Kolom Kiri**: Galeri foto interaktif dengan selector thumbnail, badge kategori & kondisi, atribut wajib fashion (Ukuran dan Brand), deskripsi lengkap barang, rekomendasi titik temu kampus Jatinangor, panduan keamanan COD, dan tombol modal laporan barang ("Laporkan barang").
+  - **Kolom Kanan (Sticky Card)**: Kartu profil penjual mahasiswa terverifikasi dengan rating bintang & jumlah review, pemilih metode pengiriman (Pickup Gratis vs Antar Kosan Tim Ocho), pemilih metode pembayaran (QRIS Instan vs COD), transparansi rincian komisi platform 20% (ditanggung penjual), dan sticky action button "Beli Sekarang".
+- **Modal Alur Pembelian & Reservasi 30 Menit**:
+  - Mengonfirmasi pembelian langsung dengan simulasi reservasi stok selama 30 menit dan penerbitan kode bayar QRIS instan sesuai aturan bisnis Ocho.
+
+## Keputusan Autentikasi & Verifikasi Mahasiswa (Tahap 4)
+
+### 1. Zero-Dependency HMAC-SHA256 Bearer Token
+- **Implementasi**: Menggunakan modul bawaan `node:crypto` (`createHmac('sha256')`) tanpa dependensi pustaka eksternal (`jsonwebtoken`).
+- **Format**: `base64url(payload).base64url(signature)`.
+- **Mitigasi Serangan Timing & Buffer Exception**: Verifikasi signature dilakukan dengan `crypto.timingSafeEqual` yang diawali pemeriksaan kesamaan panjang buffer (`sigBuf.length === expectedBuf.length`) untuk mencegah lemparan pengecualian ukuran buffer dan mencegah timing attacks.
+- **Payload Token**: Menyimpan `userId`, `email`, `role`, status `isVerified`, dan waktu kedaluwarsa (`exp` 7 hari).
+
+### 2. Validasi Domain Kampus Eksklusif (@mail.unpad.ac.id)
+- **Domain Matching**: Pencocokan domain persis (`domain === allowed.toLowerCase().trim()`) berbasis Single Source of Truth `server/src/config/business.ts` (`ALLOWED_EMAIL_DOMAINS` default `mail.unpad.ac.id`).
+- **Keamanan Anti-Spoofing**: Mencegah subdomain lookalike (`evil-unpad.ac.id`, `mail.unpad.ac.id.evil.com`) melalui tes otomatis.
+
+### 3. Middleware Autentikasi & Role Enforcement
+- `requireAuth`: Memverifikasi header `Authorization: Bearer <token>` dan melampirkan payload pengguna ke `req.user`.
+- `requireVerifiedStudent`: Memastikan pengguna telah terverifikasi kampus sebelum mengizinkan aksi penjualan barang dan pembuatan pesanan.
+- `optionalAuth`: Mendeteksi identitas pengguna tanpa memblokir pengunjung anonim untuk menjaga akses browsing publik.
+
+### 4. Manajemen Sesi Client-Side
+- Token dan metadata pengguna disimpan di browser `localStorage`.
+- Komponen `Navbar` secara dinamis menampilkan avatar, nama mahasiswa, dan badge verified Unpad saat sesi aktif, serta menyediakan kontrol keluar akun (`logout`).
+- Modal login dan registrasi terintegrasi dengan validasi langsung domain kampus.
+
+
+

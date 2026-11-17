@@ -63,7 +63,7 @@ export const openApiSpec = {
                     allowedEmailDomains: {
                       type: 'array',
                       items: { type: 'string' },
-                      example: ['mail.unpad.ac.id', 'unpad.ac.id'],
+                      example: ['mail.unpad.ac.id'],
                     },
                     pickupOnlyCategories: {
                       type: 'array',
@@ -75,6 +75,99 @@ export const openApiSpec = {
               },
             },
           },
+        },
+      },
+    },
+    '/api/auth/register': {
+      post: {
+        summary: 'Pendaftaran Mahasiswa',
+        description: 'Daftar akun mahasiswa dengan validasi domain email kampus Unpad strictly (mail.unpad.ac.id).',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'password', 'name'],
+                properties: {
+                  email: { type: 'string', format: 'email', example: 'mahasiswa@mail.unpad.ac.id' },
+                  password: { type: 'string', minLength: 8, example: 'Rahasia123!' },
+                  name: { type: 'string', example: 'Dinda Kirana' },
+                  phone: { type: 'string', example: '08123456789' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': { description: 'Pendaftaran berhasil dan terverifikasi' },
+          '400': { description: 'Domain email tidak diizinkan atau input tidak valid' },
+          '409': { description: 'Email sudah terdaftar' },
+        },
+      },
+    },
+    '/api/auth/login': {
+      post: {
+        summary: 'Login Akun Mahasiswa',
+        description: 'Masuk dengan kredensial email kampus dan password, mengembalikan bearer token.',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'password'],
+                properties: {
+                  email: { type: 'string', format: 'email', example: 'mahasiswa@mail.unpad.ac.id' },
+                  password: { type: 'string', example: 'Rahasia123!' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Login berhasil, token dikembalikan' },
+          '401': { description: 'Email atau password salah' },
+        },
+      },
+    },
+    '/api/auth/me': {
+      get: {
+        summary: 'Profil Pengguna Aktif',
+        description: 'Mengambil data profil mahasiswa dan statistik transaksi berdasarkan token bearer.',
+        tags: ['Authentication'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Profil berhasil diambil' },
+          '401': { description: 'Sesi tidak valid atau belum login' },
+        },
+      },
+    },
+    '/api/auth/verify-email': {
+      post: {
+        summary: 'Verifikasi Email Kampus',
+        description: 'Konfirmasi link/kode verifikasi email mahasiswa (Strategi A).',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email'],
+                properties: {
+                  email: { type: 'string', format: 'email', example: 'mahasiswa@mail.unpad.ac.id' },
+                  verificationCode: { type: 'string', example: '123456' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Verifikasi email berhasil' },
+          '404': { description: 'Pengguna tidak ditemukan' },
         },
       },
     },
@@ -139,6 +232,15 @@ export const openApiSpec = {
             description: 'Daftar kampus berhasil diambil',
           },
         },
+      },
+    },
+  },
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
       },
     },
   },

@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["...", "nodejs_22"]
+
+[phases.install]
+cmds = [
+  "cd ocho/server && npm install",
+  "cd ocho/client && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd ocho/server && npx prisma generate && npm run build",
+  "cd ocho/client && npx vite build"
+]
+
+[start]
+cmd = "cd ocho/server && npx prisma migrate deploy && npx prisma db seed && NODE_ENV=production node dist/index.js"

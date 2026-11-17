@@ -3,16 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --color-brand-blue: #5170FD;
-  --color-brand-blue-dark: #3B4FD6;
-  --color-brand-blue-tint: #E8ECFF;
+  --color-brand-blue: #3B4FD6;
+  --color-brand-blue-dark: #2A3BB8;
+  --color-brand-blue-tint: #F0F3FF;
   --color-brand-orange: #FA8232;
   --color-brand-purple: #3A1FB0;
-  --color-brand-surface: #F2F4F5;
-  --color-brand-text-primary: #191C1F;
-  --color-brand-text-secondary: #5F6C72;
-  --color-brand-border: #E4E7E9;
-  --color-brand-input-border: #929FA5;
+  --color-brand-surface: #ffffff;
+  --color-brand-surface-subtle: #f5f5f7;
+  --color-brand-text-primary: #000000;
+  --color-brand-text-secondary: #86868b;
+  --color-brand-border: #e5e5ea;
+  --color-brand-input-border: #d1d1d6;
   --color-brand-warning-bg: #FFF1D0;
   --color-brand-warning-text: #6B4A00;
   --color-brand-success-bg: #E6F9F0;
@@ -21,23 +22,25 @@
 
 body {
   margin: 0;
-  background-color: var(--color-brand-surface);
+  background-color: #ffffff;
   color: var(--color-brand-text-primary);
-  font-family: 'Public Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Public Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F2F4F5;
+  background: #ffffff;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 4px;
+  background: #d1d1d6;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #86868b;
 }

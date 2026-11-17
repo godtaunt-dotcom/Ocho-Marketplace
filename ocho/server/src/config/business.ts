@@ -28,6 +28,28 @@ export interface BusinessConfig {
   forbiddenCategories: string[];
 }
 
+/**
+ * Resolves allowed campus email domains.
+ * Default is strictly student domain 'mail.unpad.ac.id'.
+ * Additional domains are optionally read from environment variables:
+ * EXTRA_ALLOWED_EMAIL_DOMAINS or ALLOWED_EMAIL_DOMAINS (comma-separated).
+ */
+export function resolveAllowedEmailDomains(): string[] {
+  const base = ['mail.unpad.ac.id'];
+  const envExtra =
+    process.env.EXTRA_ALLOWED_EMAIL_DOMAINS ||
+    process.env.ALLOWED_EMAIL_DOMAINS;
+
+  if (!envExtra) return base;
+
+  const extras = envExtra
+    .split(',')
+    .map((d) => d.trim().toLowerCase())
+    .filter(Boolean);
+
+  return Array.from(new Set([...base, ...extras]));
+}
+
 export const defaultBusinessConfig: BusinessConfig = {
   // 20% platform commission deducted from seller payout
   platformCommissionRate: 0.20,
@@ -38,16 +60,13 @@ export const defaultBusinessConfig: BusinessConfig = {
   minOrderForDeliveryRupiah: 30000,
   firstOrderFreeDelivery: true,
 
-  // Reservation window for unpaid QRIS transactions
+  // Reservation window for unpaid QRIS transactions (30 menit)
   qrisReservationTimeoutMinutes: 30,
 
-  // Campus verification domains
-  allowedEmailDomains: [
-    'mail.unpad.ac.id',
-    'unpad.ac.id',
-  ],
+  // Campus verification domains (hanya domain mahasiswa Unpad by default)
+  allowedEmailDomains: resolveAllowedEmailDomains(),
 
-  // Moderation blocklist (vape is strictly banned, tobacco, alcohol, drugs, weapons)
+  // Moderation blocklist (rokok, vape, alkohol, obat, suplemen, senjata)
   prohibitedKeywords: [
     'vape',
     'liquid vape',
@@ -60,8 +79,10 @@ export const defaultBusinessConfig: BusinessConfig = {
     'ciu',
     'anggur merah',
     'ganja',
+    'obat',
     'obat keras',
     'psikotropika',
+    'suplemen',
     'senjata',
     'airsoft',
   ],
@@ -83,7 +104,18 @@ export const defaultBusinessConfig: BusinessConfig = {
 
 /**
  * Calculates financial amounts for an item order.
- * All computations are in integer Rupiah.
+ * All computations are in integer Rupiah (bilangan bulat Rupiah).
+ *
+ * Aturan Pembulatan Komisi:
+ * - Komisi platform adalah 20% dari harga barang (itemPrice * platformCommissionRate).
+ * - Dibulatkan ke bilangan bulat terdekat menggunakan Math.round (half-up nearest integer).
+ *   Contoh: 10.001 * 0.20 = 2000.2 -> dibulatkan menjadi Rp 2.000.
+ *           10.003 * 0.20 = 2000.6 -> dibulatkan menjadi Rp 2.001.
+ * - Minimum komisi adalah minCommissionRupiah (default: Rp 1.000).
+ * - Penjual menerima = Math.max(0, itemPrice - commission).
+ * - Komisi ditanggung PENJUAL (dipotong dari hasil penjualan, tidak ditambahkan ke pembeli).
+ * - Pembeli membayar = itemPrice + deliveryFee.
+ * - Tidak ada nilai pecahan desimal yang disimpan atau dikembalikan.
  */
 export function calculateOrderTotals(params: {
   itemPriceRupiah: number;
@@ -100,7 +132,7 @@ export function calculateOrderTotals(params: {
   const cfg = { ...defaultBusinessConfig, ...params.config };
   const itemPrice = Math.round(params.itemPriceRupiah);
 
-  // Commission is 20% of item price, borne by seller
+  // Commission is 20% of item price, borne by seller, rounded to nearest integer Rupiah
   const calculatedCommission = Math.round(itemPrice * cfg.platformCommissionRate);
   const commission = Math.max(calculatedCommission, cfg.minCommissionRupiah);
   const sellerPayout = Math.max(0, itemPrice - commission);
@@ -129,14 +161,22 @@ export function calculateOrderTotals(params: {
 
 /**
  * Validates whether an email belongs to an allowed Unpad campus domain.
+ * Enforces strict exact domain matching (no substring or suffix bypass).
+ * e.g. "x@evil-unpad.ac.id" and "x@mail.unpad.ac.id.evil.com" are rejected.
  */
 export function isAllowedCampusEmail(
   email: string,
   allowedDomains: string[] = defaultBusinessConfig.allowedEmailDomains
 ): boolean {
-  if (!email || !email.includes('@')) return false;
-  const domain = email.split('@')[1].toLowerCase().trim();
-  return allowedDomains.some((allowed) => domain === allowed || domain.endsWith(`.${allowed}`));
+  if (!email || typeof email !== 'string') return false;
+  const trimmed = email.trim().toLowerCase();
+  const parts = trimmed.split('@');
+  if (parts.length !== 2) return false;
+  const [localPart, domain] = parts;
+  if (!localPart || !domain) return false;
+
+  // Exact matching against allowed domains list
+  return allowedDomains.some((allowed) => domain === allowed.toLowerCase().trim());
 }
 
 /**

@@ -4,12 +4,13 @@ import { createApp } from './app';
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
+const HOST = process.env.HOST || '0.0.0.0';
 const app = createApp();
 
-const server = app.listen(PORT, () => {
-  console.log(`[Ocho Server] Berjalan di http://localhost:${PORT}`);
-  console.log(`[Ocho Server] Dokumentasi API: http://localhost:${PORT}/api/docs`);
-  console.log(`[Ocho Server] Healthcheck: http://localhost:${PORT}/api/health`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`[Ocho Server] Berjalan di http://${HOST}:${PORT}`);
+  console.log(`[Ocho Server] Dokumentasi API: http://${HOST}:${PORT}/api/docs`);
+  console.log(`[Ocho Server] Healthcheck: http://${HOST}:${PORT}/api/health`);
 });
 
 // Graceful shutdown
