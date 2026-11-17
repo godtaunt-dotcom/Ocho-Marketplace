@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchItemById, ItemDetail, BusinessConfig, fetchBusinessConfig } from '../services/api';
+import { fetchItemById, ItemDetail, BusinessConfig, fetchBusinessConfig, submitReport } from '../services/api';
 import { formatRupiah, formatRelativeTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -69,7 +69,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
         }
 
         // Set initial photo index to primary photo if available
-        const primaryIdx = itemData.photos.findIndex((p) => p.isPrimary);
+        const primaryIdx = itemData.photos.findIndex((p: any) => p.isPrimary);
         if (primaryIdx >= 0) setSelectedPhotoIndex(primaryIdx);
 
         setLoading(false);
@@ -94,14 +94,23 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
     }
   };
 
-  const handleReportSubmit = (e: React.FormEvent) => {
+  const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setReportSubmitted(true);
-    setTimeout(() => {
-      setIsReportModalOpen(false);
-      setReportSubmitted(false);
-      setReportNotes('');
-    }, 2000);
+    try {
+      await submitReport({
+        itemId,
+        reason: reportReason,
+        description: reportNotes,
+      });
+      setReportSubmitted(true);
+      setTimeout(() => {
+        setIsReportModalOpen(false);
+        setReportSubmitted(false);
+        setReportNotes('');
+      }, 2000);
+    } catch (err: any) {
+      alert(err.message || 'Gagal mengirim laporan');
+    }
   };
 
   if (loading) {

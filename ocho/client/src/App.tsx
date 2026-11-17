@@ -3,12 +3,16 @@ import { Navbar } from './components/ui/Navbar';
 import { Footer } from './components/ui/Footer';
 import { HomePage } from './pages/HomePage';
 import { ItemDetailPage } from './pages/ItemDetailPage';
+import { OrdersPage } from './pages/OrdersPage';
+import { AdminPage } from './pages/AdminPage';
 import { Modal } from './components/ui/Modal';
 import { Button } from './components/ui/Button';
 import { RupiahInput } from './components/ui/Input';
 import { Badge } from './components/ui/Badge';
 import { LogoIcon } from './components/ui/Logo';
-import { ItemDetail } from './services/api';
+import { SellModal } from './components/ui/SellModal';
+import { WalletModal } from './components/ui/WalletModal';
+import { ItemDetail, OrderItem, createOrder, simulateOrderPayment } from './services/api';
 import { formatRupiah } from './utils/format';
 import {
   AuthUser,
@@ -20,17 +24,20 @@ import {
   clearAuthSession,
 } from './services/auth';
 import {
-  ShieldCheck,
   CheckCircle2,
-  Clock,
   Sparkles,
   QrCode,
   AlertCircle,
+  Truck,
+  Phone,
+  FileText,
 } from 'lucide-react';
 
 type RouteState =
   | { name: 'home' }
   | { name: 'item-detail'; itemId: string }
+  | { name: 'orders' }
+  | { name: 'admin' }
   | { name: 'showcase' };
 
 export const App: React.FC = () => {
@@ -51,14 +58,22 @@ export const App: React.FC = () => {
   // Modals state
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  // Checkout state
   const [checkoutModalItem, setCheckoutModalItem] = useState<{
     item: ItemDetail;
     deliveryMethod: 'PICKUP' | 'DELIVERY';
     paymentMethod: 'QRIS' | 'COD';
   } | null>(null);
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutNotes, setCheckoutNotes] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [createdOrderResult, setCreatedOrderResult] = useState<OrderItem | null>(null);
+  const [simulatingPay, setSimulatingPay] = useState(false);
 
-  // Showcase state from Tahap 1
+  // Showcase state
   const [inputPrice, setInputPrice] = useState<number>(75000);
   const [showcaseDelivery, setShowcaseDelivery] = useState<'PICKUP' | 'DELIVERY'>('DELIVERY');
   const [showcaseFirstOrder, setShowcaseFirstOrder] = useState(true);
@@ -72,6 +87,14 @@ export const App: React.FC = () => {
         setRoute({ name: 'item-detail', itemId: id });
         return;
       }
+    }
+    if (hash === '#/orders') {
+      setRoute({ name: 'orders' });
+      return;
+    }
+    if (hash === '#/admin') {
+      setRoute({ name: 'admin' });
+      return;
     }
     if (hash === '#/showcase') {
       setRoute({ name: 'showcase' });
@@ -90,7 +113,10 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (getStoredToken()) {
       fetchCurrentProfile().then((u) => {
-        if (u) setCurrentUser(u);
+        if (u) {
+          setCurrentUser(u);
+          if (u.phone) setCheckoutPhone(u.phone);
+        }
       });
     }
   }, []);
@@ -138,14 +164,50 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     clearAuthSession();
     setCurrentUser(null);
+    navigateTo('#/');
   };
 
-  const handleCheckoutConfirm = () => {
-    setCheckoutSuccess(true);
-    setTimeout(() => {
-      setCheckoutSuccess(false);
+  const handleCheckoutConfirm = async () => {
+    if (!checkoutModalItem) return;
+
+    if (checkoutModalItem.deliveryMethod === 'DELIVERY' && !checkoutAddress.trim()) {
+      alert('Alamat pengantaran (nama kos / gedung) wajib diisi.');
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const order = await createOrder({
+        itemId: checkoutModalItem.item.id,
+        deliveryMethod: checkoutModalItem.deliveryMethod,
+        paymentMethod: checkoutModalItem.paymentMethod,
+        deliveryAddress: checkoutAddress.trim() || null,
+        buyerPhone: checkoutPhone.trim() || currentUser?.phone || '081234567890',
+        notes: checkoutNotes.trim() || null,
+      });
+
+      setCreatedOrderResult(order);
+    } catch (err: any) {
+      alert(err.message || 'Gagal memproses pesanan.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleSimulatePaymentFromCheckout = async () => {
+    if (!createdOrderResult) return;
+    setSimulatingPay(true);
+    try {
+      await simulateOrderPayment(createdOrderResult.id);
+      alert('Pembayaran QRIS berhasil! Pesananmu kini berstatus PAID.');
+      setCreatedOrderResult(null);
       setCheckoutModalItem(null);
-    }, 2500);
+      navigateTo('#/orders');
+    } catch (err: any) {
+      alert(err.message || 'Gagal simulasi pembayaran.');
+    } finally {
+      setSimulatingPay(false);
+    }
   };
 
   return (
@@ -158,9 +220,12 @@ export const App: React.FC = () => {
           setIsLoginModalOpen(true);
         }}
         onLogoutClick={handleLogout}
+        onOrdersClick={() => navigateTo('#/orders')}
+        onWalletClick={() => setIsWalletModalOpen(true)}
+        onAdminClick={() => navigateTo('#/admin')}
         onSellClick={() => {
           if (!currentUser) {
-            setAuthError('Silakan masuk terlebih dahulu untuk menjual barang.');
+            setAuthError('Silakan masuk terlebih dahulu dengan email Unpad untuk menjual barang.');
             setIsLoginModalOpen(true);
           } else {
             setIsSellModalOpen(true);
@@ -192,22 +257,30 @@ export const App: React.FC = () => {
                 setIsLoginModalOpen(true);
                 return;
               }
+              setCreatedOrderResult(null);
               setCheckoutModalItem({ item, deliveryMethod, paymentMethod });
             }}
           />
         )}
 
+        {route.name === 'orders' && (
+          <OrdersPage
+            onBackToHome={() => navigateTo('#/')}
+            onViewItem={(id) => navigateTo(`#/items/${id}`)}
+          />
+        )}
+
+        {route.name === 'admin' && (
+          <AdminPage onBackToHome={() => navigateTo('#/')} />
+        )}
+
         {route.name === 'showcase' && (
           <div className="max-w-7xl mx-auto px-6 py-10 space-y-12">
             <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigateTo('#/')}
-              >
+              <Button variant="ghost" size="sm" onClick={() => navigateTo('#/')}>
                 &larr; Kembali ke Marketplace
               </Button>
-              <Badge variant="info">Tahap 1 Component Showcase</Badge>
+              <Badge variant="info">Component Showcase</Badge>
             </div>
 
             {/* Stage 1 Announcement Header */}
@@ -215,94 +288,17 @@ export const App: React.FC = () => {
               <div className="relative z-10 max-w-3xl space-y-4">
                 <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-semibold text-brand-blue-100 border border-white/20">
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Tahap 1: Setup Proyek, Desain Sistem &amp; Arsitektur</span>
+                  <span>Sistem &amp; Arsitektur Ocho Unpad</span>
                 </div>
                 <h1 className="font-display text-3xl md:text-4xl font-black tracking-tight leading-tight">
-                  Ocho Design System &amp; Component Showcase
+                  Ocho Design System &amp; Transparansi Keuangan
                 </h1>
                 <p className="text-sm md:text-base text-brand-blue-100 leading-relaxed">
-                  Verifikasi token warna WCAG AA, tipografi Fredoka &amp; Public Sans, logo resmi dengan senyum kurva
-                  dan titik pupil, serta komponen UI atomik siap pakai untuk marketplace mahasiswa Unpad.
+                  Semua transaksi preloved dihitung dengan komisi platform 20% ditanggung penjual dan bebas biaya tersembunyi bagi pembeli.
                 </p>
               </div>
               <div className="absolute right-6 -bottom-8 opacity-10 pointer-events-none select-none hidden lg:block">
                 <LogoIcon size={260} />
-              </div>
-            </section>
-
-            {/* Color Palette & Accessibility Contrast */}
-            <section className="bg-white rounded-3xl border border-brand-border p-8 shadow-card space-y-6">
-              <div className="border-b border-brand-border/60 pb-4">
-                <h2 className="font-display text-xl font-bold text-brand-text-primary flex items-center gap-2">
-                  <span className="w-2.5 h-6 bg-brand-blue-500 rounded-full"></span>
-                  Palette Warna &amp; Aksesibilitas (WCAG AA)
-                </h2>
-                <p className="text-xs text-brand-text-secondary mt-1">
-                  Diterjemahkan langsung dari token Figma di <code className="text-brand-purple font-mono">docs/design.md</code>.
-                  Tombol teks putih pada warna jingga menggunakan varian aman <span className="font-mono font-semibold">#D86213</span> (kontras &ge; 4.5:1).
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-brand-orange shadow-xs flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-gray-900 bg-white/90 px-1.5 py-0.5 rounded">Figma #FA8232</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Brand Orange</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#FA8232</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-[#D86213] shadow-xs flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-white bg-black/40 px-1.5 py-0.5 rounded">AA Compliant</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Accessible Orange</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#D86213</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-brand-blue-500 shadow-xs flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-white bg-black/30 px-1.5 py-0.5 rounded">#5170FD</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Brand Blue</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#5170FD</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-brand-purple shadow-xs flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-white bg-black/30 px-1.5 py-0.5 rounded">#3A1FB0</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Brand Purple</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#3A1FB0</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-brand-surface shadow-xs border border-brand-border flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-brand-text-primary bg-white px-1.5 py-0.5 rounded border border-brand-border">#F8FAFC</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Brand Surface</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#F8FAFC</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-20 rounded-2xl bg-brand-text-primary shadow-xs flex items-end p-2.5">
-                    <span className="text-[10px] font-bold text-white bg-white/20 px-1.5 py-0.5 rounded">#0F172A</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-brand-text-primary">Text Primary</p>
-                    <p className="text-[11px] text-brand-text-secondary font-mono">#0F172A</p>
-                  </div>
-                </div>
               </div>
             </section>
 
@@ -314,7 +310,7 @@ export const App: React.FC = () => {
                   Kalkulator Finansial Transparan Ocho
                 </h2>
                 <p className="text-xs text-brand-text-secondary mt-1">
-                  Membuktikan aturan bisnis komisi 20% ditanggung penjual (dipotong dari hasil) dan ongkos kirim flat Rp 3.000.
+                  Membuktikan aturan bisnis komisi 20% ditanggung penjual dan ongkos kirim flat Rp 3.000.
                 </p>
               </div>
 
@@ -394,7 +390,7 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* 3. Global Footer with Component Showcase Shortcut */}
+      {/* 3. Global Footer */}
       <Footer onShowcaseClick={() => navigateTo('#/showcase')} />
 
       {/* 4. Login & Register Modal */}
@@ -490,7 +486,7 @@ export const App: React.FC = () => {
             {authMode === 'REGISTER' && (
               <div>
                 <label className="block text-xs font-bold text-brand-text-primary mb-1">
-                  Nomor WhatsApp (Opsional, untuk COD)
+                  Nomor WhatsApp
                 </label>
                 <input
                   type="tel"
@@ -518,103 +514,115 @@ export const App: React.FC = () => {
               </Button>
             </div>
           </form>
-
-          <div className="bg-brand-surface p-3 rounded-xl border border-brand-border text-[11px] text-brand-text-secondary text-center space-y-1">
-            <p className="font-semibold text-brand-text-primary flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-blue-600" />
-              <span>Verifikasi Mahasiswa Otomatis (Strategi A)</span>
-            </p>
-            <p>
-              Akun yang mendaftar dengan domain resmi Unpad langsung mendapatkan status terverifikasi.
-            </p>
-          </div>
         </div>
       </Modal>
 
-      {/* 5. Sell Modal */}
-      <Modal
+      {/* 5. Sell Modal (Fully Functional) */}
+      <SellModal
         isOpen={isSellModalOpen}
         onClose={() => setIsSellModalOpen(false)}
-        title="Jual Barang Preloved Kamu"
-        description="Jual kasur, buku, kipas angin, atau baju ke sesama mahasiswa Unpad Jatinangor."
-      >
-        <div className="space-y-4 py-2">
-          <div className="bg-brand-surface p-4 rounded-xl border border-brand-border space-y-2 text-xs">
-            <div className="flex items-center gap-2 font-bold text-brand-text-primary">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Status Penjual:</span>
-            </div>
-            <p className="text-brand-text-secondary">
-              Masuk sebagai <strong className="text-brand-text-primary">{currentUser?.name}</strong> ({currentUser?.email}) &bull; <Badge variant="verified" size="sm">Terverifikasi</Badge>
-            </p>
-            <ul className="list-disc list-inside text-brand-text-secondary space-y-1 pt-1">
-              <li>Barang milik pribadi, bukan barang terlarang (vape, rokok, alkohol, obat).</li>
-              <li>Komisi 20% otomatis dipotong dari hasil penjualan saat barang laku.</li>
-              <li>Barang Fashion wajib mengisi ukuran dan kondisi.</li>
-            </ul>
-          </div>
+        onSuccess={() => {
+          alert('Selamat! Barang preloved kamu berhasil tayang di marketplace Ocho.');
+          navigateTo('#/');
+        }}
+      />
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsSellModalOpen(false)}>
-              Tutup
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                alert('Formulir input barang interaktif akan siap di Tahap berikutnya.');
-                setIsSellModalOpen(false);
-              }}
-            >
-              Lanjutkan Unggah
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      {/* 6. Wallet Modal (Fully Functional) */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+      />
 
-      {/* 6. Checkout Flow Modal */}
+      {/* 7. Checkout Flow Modal */}
       {checkoutModalItem && (
         <Modal
           isOpen={true}
           onClose={() => {
-            if (!checkoutSuccess) setCheckoutModalItem(null);
+            if (!createdOrderResult) setCheckoutModalItem(null);
           }}
-          title={checkoutSuccess ? 'Pesanan Berhasil Dibuat!' : 'Konfirmasi Pesanan'}
+          title={createdOrderResult ? 'Pesanan Berhasil Dibuat!' : 'Konfirmasi Pesanan'}
           description={
-            checkoutSuccess
-              ? 'Barang berhasil di-reserve selama 30 menit.'
-              : `Beli preloved dari mahasiswa Unpad terverifikasi.`
+            createdOrderResult
+              ? `No. Pesanan: #${createdOrderResult.orderNumber}`
+              : `Beli preloved dari sesama mahasiswa Unpad terverifikasi.`
           }
         >
-          {checkoutSuccess ? (
-            <div className="py-6 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-                <CheckCircle2 className="w-8 h-8" />
+          {createdOrderResult ? (
+            <div className="py-4 text-center space-y-4">
+              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+                <CheckCircle2 className="w-7 h-7" />
               </div>
 
-              <div className="space-y-1">
-                <h4 className="font-display font-bold text-lg text-brand-text-primary">
-                  Kode Bayar QRIS Telah Terbit
-                </h4>
-                <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
-                  Selesaikan pembayaran dalam waktu <strong className="text-brand-orange font-bold">30 menit</strong>. Jika tidak dibayar, barang akan otomatis dilepas kembali ke katalog.
-                </p>
-              </div>
+              {createdOrderResult.paymentMethod === 'QRIS' ? (
+                <>
+                  <div className="space-y-1">
+                    <h4 className="font-display font-bold text-base text-brand-text-primary">
+                      Scan QRIS untuk Menyelesaikan Pembayaran
+                    </h4>
+                    <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
+                      Barang di-reserve selama <strong className="text-brand-orange font-bold">30 menit</strong>.
+                    </p>
+                  </div>
 
-              <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
-                <QrCode className="w-32 h-32 mx-auto text-brand-text-primary" />
-                <span className="text-[11px] font-mono text-brand-text-secondary block">
-                  Simulasi QRIS Sandbox Ocho
-                </span>
-              </div>
+                  <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
+                    <QrCode className="w-40 h-40 mx-auto text-brand-text-primary" />
+                    <p className="text-xs font-mono font-bold text-brand-blue-700">
+                      Total: {formatRupiah(createdOrderResult.buyerTotalRupiah)}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-center gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setCheckoutModalItem(null);
+                        setCreatedOrderResult(null);
+                        navigateTo('#/orders');
+                      }}
+                    >
+                      Buka Pesanan Saya
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      disabled={simulatingPay}
+                      onClick={handleSimulatePaymentFromCheckout}
+                    >
+                      {simulatingPay ? 'Memproses...' : 'Simulasi Bayar QRIS Sukses'}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <h4 className="font-display font-bold text-base text-brand-text-primary">
+                    Pesanan COD Berhasil Dipesan!
+                  </h4>
+                  <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
+                    Kurir Ocho akan menghubungi WhatsApp <strong className="text-brand-text-primary">{createdOrderResult.buyerPhone}</strong> dan mengantarkan barang ke <strong className="text-brand-text-primary">{createdOrderResult.deliveryAddress}</strong>.
+                  </p>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setCheckoutModalItem(null);
+                      setCreatedOrderResult(null);
+                      navigateTo('#/orders');
+                    }}
+                  >
+                    Buka Pesanan Saya
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4 py-2">
+              {/* Item Summary */}
               <div className="flex items-center gap-3 p-3 bg-brand-surface rounded-xl border border-brand-border">
                 <img
                   src={checkoutModalItem.item.photos[0]?.url}
                   alt=""
-                  className="w-16 h-16 rounded-lg object-cover shrink-0"
+                  className="w-16 h-16 rounded-lg object-cover shrink-0 border border-brand-border"
                 />
                 <div className="space-y-0.5 min-w-0">
                   <h4 className="font-display font-bold text-sm text-brand-text-primary truncate">
@@ -629,40 +637,91 @@ export const App: React.FC = () => {
                 </div>
               </div>
 
+              {/* Delivery Details Form */}
+              {checkoutModalItem.deliveryMethod === 'DELIVERY' && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1">
+                    <Truck className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <span>Alamat Pengantaran (Nama Kos / Gedung) *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Kos Pondok Melati Kamar 12, Jl. Sayang No. 45"
+                    value={checkoutAddress}
+                    onChange={(e) => setCheckoutAddress(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
+                    <Phone className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <span>No. WhatsApp Pembeli *</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="08123456789"
+                    value={checkoutPhone}
+                    onChange={(e) => setCheckoutPhone(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
+                    <FileText className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <span>Catatan untuk Penjual / Kurir</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Titip ibu kos / ketemu di gerlam"
+                    value={checkoutNotes}
+                    onChange={(e) => setCheckoutNotes(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Price Calculation */}
               <div className="space-y-2 text-xs bg-white p-3.5 rounded-xl border border-brand-border/60">
                 <div className="flex justify-between text-brand-text-secondary">
                   <span>Metode Pengambilan:</span>
                   <span className="font-bold text-brand-text-primary">
-                    {checkoutModalItem.deliveryMethod === 'PICKUP' ? 'Pickup Kampus (Gratis)' : 'Diantar Tim Ocho (Gratis #1)'}
+                    {checkoutModalItem.deliveryMethod === 'PICKUP' ? 'Pickup Kampus (Gratis)' : 'Diantar Tim Ocho'}
                   </span>
                 </div>
                 <div className="flex justify-between text-brand-text-secondary">
                   <span>Metode Pembayaran:</span>
                   <span className="font-bold text-brand-text-primary">
-                    {checkoutModalItem.paymentMethod === 'QRIS' ? 'QRIS Instan' : 'COD (Tunai saat kurir tiba)'}
+                    {checkoutModalItem.paymentMethod === 'QRIS' ? 'QRIS Instan' : 'COD (Bayar Tunai saat Kurir Tiba)'}
                   </span>
                 </div>
                 <div className="border-t border-brand-border/60 pt-2 flex justify-between text-sm font-bold text-brand-text-primary">
-                  <span>Total yang Harus Dibayar:</span>
+                  <span>Total Tagihan:</span>
                   <span className="text-brand-orange font-black text-base">
-                    {formatRupiah(checkoutModalItem.item.priceRupiah)}
+                    {formatRupiah(
+                      checkoutModalItem.item.priceRupiah +
+                        (checkoutModalItem.deliveryMethod === 'DELIVERY' ? 3000 : 0)
+                    )}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] p-2.5 rounded-xl flex items-start gap-2">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <span>
-                  Barang akan di-reserve 30 menit. Tidak ada biaya admin tersembunyi bagi pembeli.
-                </span>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-brand-border">
                 <Button variant="ghost" size="sm" onClick={() => setCheckoutModalItem(null)}>
                   Batal
                 </Button>
-                <Button variant="primary" size="sm" onClick={handleCheckoutConfirm}>
-                  Konfirmasi Beli &bull; {formatRupiah(checkoutModalItem.item.priceRupiah)}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={checkoutLoading}
+                  onClick={handleCheckoutConfirm}
+                >
+                  {checkoutLoading ? 'Memproses...' : 'Konfirmasi Pesanan'}
                 </Button>
               </div>
             </div>

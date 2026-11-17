@@ -9,6 +9,11 @@ import { categoriesRouter } from './routes/categories';
 import { itemsRouter } from './routes/items';
 import { campusesRouter } from './routes/campuses';
 import { authRouter } from './routes/auth';
+import { ordersRouter } from './routes/orders';
+import { reviewsRouter } from './routes/reviews';
+import { payoutsRouter } from './routes/payouts';
+import { reportsRouter } from './routes/reports';
+import { adminRouter } from './routes/admin';
 import { openApiSpec } from './docs/openapi';
 
 export function createApp(): Express {
@@ -34,6 +39,11 @@ export function createApp(): Express {
   app.use('/api/categories', categoriesRouter);
   app.use('/api/items', itemsRouter);
   app.use('/api/campuses', campusesRouter);
+  app.use('/api/orders', ordersRouter);
+  app.use('/api/reviews', reviewsRouter);
+  app.use('/api/payouts', payoutsRouter);
+  app.use('/api/reports', reportsRouter);
+  app.use('/api/admin', adminRouter);
 
   // API root info
   app.get('/api', (_req: Request, res: Response) => {

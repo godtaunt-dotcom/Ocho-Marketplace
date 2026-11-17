@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Logo } from './Logo';
 import { Button } from './Button';
-import { Badge } from './Badge';
-import { Search, PlusCircle, User, ShieldCheck, LogOut } from 'lucide-react';
+import { Search, PlusCircle, User, ShieldCheck, LogOut, Package, Wallet, ShieldAlert } from 'lucide-react';
 import { AuthUser } from '../../services/auth';
 
 export interface NavbarProps {
@@ -10,6 +9,9 @@ export interface NavbarProps {
   onLoginClick?: () => void;
   onLogoutClick?: () => void;
   onSellClick?: () => void;
+  onOrdersClick?: () => void;
+  onWalletClick?: () => void;
+  onAdminClick?: () => void;
   onLogoClick?: () => void;
   searchQuery?: string;
   onSearchChange?: (val: string) => void;
@@ -22,6 +24,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLoginClick,
   onLogoutClick,
   onSellClick,
+  onOrdersClick,
+  onWalletClick,
+  onAdminClick,
   onLogoClick,
   searchQuery = '',
   onSearchChange,
@@ -64,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <span>Eksklusif Mahasiswa Unpad (Jatinangor) &bull; Semua Pengguna Terverifikasi</span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
         {/* Left: Logo & Campus Tag */}
         <div className="flex items-center gap-3 shrink-0">
           <a
@@ -86,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-lg relative">
+        <div className="flex-1 max-w-md relative hidden md:block">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -107,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Module Tabs (Desktop) */}
-        <nav className="flex items-center gap-1 shrink-0 bg-[#f5f5f7] p-1 rounded-full border border-brand-border">
+        <nav className="hidden lg:flex items-center gap-1 shrink-0 bg-[#f5f5f7] p-1 rounded-full border border-brand-border">
           {modules.map((m) => {
             const isCurrent = m.id === activeModule;
             return (
@@ -136,9 +141,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   )}
                 </button>
 
-                {/* Tooltip for Inactive Modules */}
                 {tooltipModule === m.id && (
-                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 bg-[#000000] text-white text-[11px] py-1.5 px-3 rounded-xl shadow-lg whitespace-nowrap animate-in fade-in zoom-in-95">
+                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 bg-[#000000] text-white text-[11px] py-1.5 px-3 rounded-xl shadow-lg whitespace-nowrap">
                     Modul {m.label} segera hadir di fase berikutnya!
                   </div>
                 )}
@@ -147,22 +151,55 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Actions: Auth Status & Sell */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Right Actions */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {currentUser ? (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1 bg-[#f5f5f7] rounded-full border border-brand-border">
-                <div className="w-6 h-6 rounded-full bg-brand-blue-600 text-white font-bold text-xs flex items-center justify-center">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Admin Portal Button (Only visible if ADMIN) */}
+              {currentUser.role === 'ADMIN' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onAdminClick}
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 text-xs px-2.5 py-1"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 mr-1" />
+                  Admin
+                </Button>
+              )}
+
+              {/* My Orders Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onOrdersClick}
+                className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
+                title="Pesanan Saya"
+              >
+                <Package className="w-4 h-4 mr-1 text-brand-blue-600" />
+                <span className="hidden sm:inline">Pesanan</span>
+              </Button>
+
+              {/* Wallet Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onWalletClick}
+                className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
+                title="Dompet & Saldo"
+              >
+                <Wallet className="w-4 h-4 mr-1 text-emerald-600" />
+                <span className="hidden sm:inline">Dompet</span>
+              </Button>
+
+              {/* User Profile Badge */}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f5f5f7] rounded-full border border-brand-border">
+                <div className="w-5 h-5 rounded-full bg-brand-blue-600 text-white font-bold text-[10px] flex items-center justify-center">
                   {currentUser.name.charAt(0).toUpperCase()}
                 </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-xs font-bold text-brand-text-primary line-clamp-1 max-w-[120px]">
-                    {currentUser.name}
-                  </span>
-                  <span className="text-[10px] text-brand-text-secondary flex items-center gap-1">
-                    <Badge variant="verified" size="sm">Unpad</Badge>
-                  </span>
-                </div>
+                <span className="text-xs font-bold text-brand-text-primary hidden md:inline truncate max-w-[100px]">
+                  {currentUser.name}
+                </span>
               </div>
 
               <Button
@@ -170,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 size="sm"
                 title="Keluar"
                 onClick={onLogoutClick}
-                className="text-brand-text-secondary hover:text-red-600 p-2 rounded-full"
+                className="text-brand-text-secondary hover:text-red-600 p-1.5 rounded-full"
               >
                 <LogOut className="w-4 h-4" />
               </Button>

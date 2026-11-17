@@ -1,7 +1,9 @@
 /**
  * Ocho API Client Service
- * Typed fetch wrappers communicating with the decoupled Express backend.
+ * Typed fetch wrappers communicating with the Express backend.
  */
+
+import { getStoredToken } from './auth';
 
 export interface Category {
   id: string;
@@ -14,7 +16,7 @@ export interface Category {
   requiresCondition: boolean;
   isForbidden: boolean;
   displayOrder: number;
-  activeItemCount: number;
+  activeItemCount?: number;
 }
 
 export interface ItemPhoto {
@@ -34,7 +36,7 @@ export interface ItemSummary {
   brand: string | null;
   allowedDeliveryMethod: 'PICKUP_ONLY' | 'PICKUP_OR_DELIVERY';
   pickupLocation: string | null;
-  status: 'ACTIVE' | 'RESERVED' | 'SOLD';
+  status: 'ACTIVE' | 'RESERVED' | 'SOLD' | 'ARCHIVED';
   createdAt: string;
   category: {
     id: string;
@@ -52,6 +54,15 @@ export interface ItemSummary {
     } | null;
   };
   photos: ItemPhoto[];
+}
+
+export interface BusinessConfig {
+  platformCommissionRate: number;
+  standardDeliveryFeeRupiah: number;
+  minOrderForDeliveryRupiah: number;
+  firstOrderFreeDelivery: boolean;
+  allowedEmailDomains: string[];
+  pickupOnlyCategories: string[];
 }
 
 export interface ReviewItem {
@@ -88,16 +99,98 @@ export interface ItemListResponse {
   };
 }
 
-export interface BusinessConfig {
-  platformCommissionRate: number;
-  standardDeliveryFeeRupiah: number;
-  minOrderForDeliveryRupiah: number;
-  firstOrderFreeDelivery: boolean;
-  allowedEmailDomains: string[];
-  pickupOnlyCategories: string[];
+export interface OrderItem {
+  id: string;
+  orderNumber: string;
+  buyerId: string;
+  sellerId: string;
+  itemId: string;
+  itemPriceRupiah: number;
+  commissionRupiah: number;
+  sellerPayoutRupiah: number;
+  deliveryFeeRupiah: number;
+  buyerTotalRupiah: number;
+  deliveryMethod: 'PICKUP' | 'DELIVERY';
+  deliveryAddress: string | null;
+  buyerPhone: string;
+  paymentMethod: 'QRIS' | 'COD';
+  status: 'PENDING_PAYMENT' | 'PAID' | 'PROCESSING' | 'READY_FOR_PICKUP' | 'ON_DELIVERY' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
+  reservedUntil: string | null;
+  notes: string | null;
+  createdAt: string;
+  item: {
+    id: string;
+    title: string;
+    priceRupiah: number;
+    photos: ItemPhoto[];
+    category?: { name: string };
+  };
+  buyer: { id: string; name: string; phone?: string; email?: string };
+  seller: { id: string; name: string; phone?: string; email?: string; isVerified?: boolean };
+  payment?: {
+    id: string;
+    paymentType: string;
+    status: string;
+    qrString: string | null;
+    amountRupiah: number;
+    transactionId: string | null;
+  } | null;
+  review?: {
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+  } | null;
 }
 
-export interface FetchItemsParams {
+export interface BalanceData {
+  currentBalanceRupiah: number;
+  pendingWithdrawalRupiah: number;
+  availableToWithdrawRupiah: number;
+  history: Array<{
+    id: string;
+    type: string;
+    amountRupiah: number;
+    balanceAfterRupiah: number;
+    description: string;
+    createdAt: string;
+  }>;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeItems: number;
+  totalOrders: number;
+  completedOrdersCount: number;
+  totalGmvRupiah: number;
+  totalCommissionEarnedRupiah: number;
+  pendingReportsCount: number;
+  pendingPayoutsCount: number;
+}
+
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+
+function getAuthHeaders(): HeadersInit {
+  const token = getStoredToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await fetch(`${API_BASE}/categories`);
+  if (!res.ok) throw new Error(`Gagal memuat kategori (${res.status})`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchBusinessConfig(): Promise<BusinessConfig> {
+  const res = await fetch(`${API_BASE}/config`);
+  if (!res.ok) throw new Error(`Gagal memuat konfigurasi (${res.status})`);
+  return res.json();
+}
+
+export async function fetchItems(params: {
   category?: string;
   search?: string;
   condition?: string;
@@ -105,68 +198,271 @@ export interface FetchItemsParams {
   sort?: 'latest' | 'price_asc' | 'price_desc';
   page?: number;
   limit?: number;
-}
-
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
-
-export async function fetchCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_BASE}/categories`);
-  if (!res.ok) {
-    throw new Error(`Gagal memuat kategori (${res.status})`);
-  }
-  const json = await res.json();
-  return json.data;
-}
-
-export async function fetchItems(params: FetchItemsParams = {}): Promise<ItemListResponse> {
+} = {}): Promise<ItemListResponse> {
   const searchParams = new URLSearchParams();
-  if (params.category && params.category !== 'semua') {
-    searchParams.set('category', params.category);
-  }
-  if (params.search && params.search.trim()) {
-    searchParams.set('search', params.search.trim());
-  }
-  if (params.condition && params.condition !== 'ALL') {
-    searchParams.set('condition', params.condition);
-  }
-  if (params.deliveryMethod && params.deliveryMethod !== 'ALL') {
-    searchParams.set('deliveryMethod', params.deliveryMethod);
-  }
-  if (params.sort) {
-    searchParams.set('sort', params.sort);
-  }
-  if (params.page) {
-    searchParams.set('page', String(params.page));
-  }
-  if (params.limit) {
-    searchParams.set('limit', String(params.limit));
-  }
+  if (params.category && params.category !== 'semua') searchParams.set('category', params.category);
+  if (params.search && params.search.trim()) searchParams.set('search', params.search.trim());
+  if (params.condition && params.condition !== 'ALL') searchParams.set('condition', params.condition);
+  if (params.deliveryMethod && params.deliveryMethod !== 'ALL') searchParams.set('deliveryMethod', params.deliveryMethod);
+  if (params.sort) searchParams.set('sort', params.sort);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.limit) searchParams.set('limit', String(params.limit));
 
   const queryStr = searchParams.toString();
-  const url = `${API_BASE}/items${queryStr ? `?${queryStr}` : ''}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Gagal memuat daftar barang (${res.status})`);
-  }
+  const res = await fetch(`${API_BASE}/items${queryStr ? `?${queryStr}` : ''}`);
+  if (!res.ok) throw new Error(`Gagal memuat barang (${res.status})`);
   return res.json();
 }
 
 export async function fetchItemById(id: string): Promise<ItemDetail> {
   const res = await fetch(`${API_BASE}/items/${encodeURIComponent(id)}`);
   if (!res.ok) {
-    if (res.status === 404) {
-      throw new Error('Barang tidak ditemukan atau sudah dihapus.');
-    }
+    if (res.status === 404) throw new Error('Barang tidak ditemukan atau sudah dihapus.');
     throw new Error(`Gagal memuat detail barang (${res.status})`);
   }
   const json = await res.json();
   return json.data;
 }
 
-export async function fetchBusinessConfig(): Promise<BusinessConfig> {
-  const res = await fetch(`${API_BASE}/config`);
+export async function createItem(payload: {
+  title: string;
+  description: string;
+  categoryId: string;
+  priceRupiah: number;
+  condition: string;
+  size?: string | null;
+  brand?: string | null;
+  allowedDeliveryMethod: 'PICKUP_ONLY' | 'PICKUP_OR_DELIVERY';
+  pickupLocation?: string | null;
+  photos: string[];
+}): Promise<ItemDetail> {
+  const res = await fetch(`${API_BASE}/items`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal mengunggah barang');
+  return json.data;
+}
+
+export async function fetchMyListings(): Promise<ItemSummary[]> {
+  const res = await fetch(`${API_BASE}/items/my/listings`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat daftar barang Anda');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function deleteItem(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/items/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) {
-    throw new Error(`Gagal memuat konfigurasi bisnis (${res.status})`);
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal menghapus barang');
   }
-  return res.json();
+}
+
+export async function createOrder(payload: {
+  itemId: string;
+  deliveryMethod: 'PICKUP' | 'DELIVERY';
+  paymentMethod: 'QRIS' | 'COD';
+  deliveryAddress?: string | null;
+  buyerPhone: string;
+  notes?: string | null;
+}): Promise<OrderItem> {
+  const res = await fetch(`${API_BASE}/orders`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal membuat pesanan');
+  return json.data;
+}
+
+export async function fetchOrders(role?: 'buyer' | 'seller'): Promise<OrderItem[]> {
+  const query = role ? `?role=${role}` : '';
+  const res = await fetch(`${API_BASE}/orders${query}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat daftar pesanan');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchOrderById(id: string): Promise<OrderItem> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat detail pesanan');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function updateOrderStatus(id: string, status: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal mengubah status pesanan');
+  }
+}
+
+export async function confirmOrderReceived(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}/receive`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal mengonfirmasi penerimaan barang');
+  }
+}
+
+export async function simulateOrderPayment(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}/pay-simulate`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal memproses simulasi pembayaran');
+  }
+}
+
+export async function submitReview(payload: {
+  orderId: string;
+  rating: number;
+  comment?: string | null;
+}): Promise<void> {
+  const res = await fetch(`${API_BASE}/reviews`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal mengirim ulasan');
+  }
+}
+
+export async function fetchSellerBalance(): Promise<BalanceData> {
+  const res = await fetch(`${API_BASE}/payouts/balance`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat data saldo');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function requestPayout(payload: {
+  amountRupiah: number;
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
+}): Promise<void> {
+  const res = await fetch(`${API_BASE}/payouts`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal mengajukan penarikan saldo');
+  }
+}
+
+export async function submitReport(payload: {
+  itemId: string;
+  reason: string;
+  description: string;
+}): Promise<void> {
+  const res = await fetch(`${API_BASE}/reports`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal mengirim laporan');
+  }
+}
+
+export async function fetchAdminStats(): Promise<AdminStats> {
+  const res = await fetch(`${API_BASE}/admin/stats`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat data statistik admin');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchAdminOrders(): Promise<OrderItem[]> {
+  const res = await fetch(`${API_BASE}/admin/orders`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat pesanan admin');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchAdminUsers(): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/admin/users`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat pengguna');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function verifyAdminUser(userId: string, isVerified: boolean): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/users/${encodeURIComponent(userId)}/verify`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ isVerified }),
+  });
+  if (!res.ok) throw new Error('Gagal memperbarui verifikasi pengguna');
+}
+
+export async function fetchAdminReports(): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/admin/reports`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat laporan moderasi');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function resolveAdminReport(reportId: string, archiveItem: boolean, adminNotes?: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/reports/${encodeURIComponent(reportId)}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ status: 'RESOLVED', archiveItem, adminNotes }),
+  });
+  if (!res.ok) throw new Error('Gagal memoderasi laporan');
+}
+
+export async function fetchAdminPayouts(): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/admin/payouts`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat permintaan pencairan');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function updateAdminPayout(payoutId: string, status: string, adminNotes?: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/payouts/${encodeURIComponent(payoutId)}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ status, adminNotes }),
+  });
+  if (!res.ok) throw new Error('Gagal memproses pencairan');
 }

@@ -271,7 +271,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 }`}
               >
                 <span>{cat.name}</span>
-                {cat.activeItemCount > 0 && (
+                {(cat.activeItemCount ?? 0) > 0 && (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
                       isSelected
