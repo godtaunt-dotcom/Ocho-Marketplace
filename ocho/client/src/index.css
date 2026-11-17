@@ -2,7 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/Inter-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Fredoka-Bold.ttf') format('truetype');
+}
+
 :root {
+  /* iOS-native calm typography stack */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  
+  /* Tracking tokens */
+  --tracking-heading: -0.02em;
+  --tracking-body: 0em;
+  --tracking-caption: 0.015em;
+
   --color-brand-blue: #3B4FD6;
   --color-brand-blue-dark: #2A3BB8;
   --color-brand-blue-tint: #F0F3FF;
@@ -24,9 +48,27 @@ body {
   margin: 0;
   background-color: #ffffff;
   color: var(--color-brand-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Public Sans", sans-serif;
+  font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: var(--tracking-body);
+}
+
+/* Headings: Semi-bold with negative letter spacing */
+h1, h2, h3, h4, .font-heading {
+  letter-spacing: var(--tracking-heading);
+}
+
+/* Small text & captions: normal to slightly positive tracking */
+small, .text-xs, .text-\[10px\], .text-\[11px\] {
+  letter-spacing: var(--tracking-caption);
+}
+
+/* Tabular numerals for prices, totals, and counts */
+.tabular-nums,
+.font-mono,
+[data-tabular="true"] {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Custom scrollbar */

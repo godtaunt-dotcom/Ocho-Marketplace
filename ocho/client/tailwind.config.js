@@ -45,9 +45,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Public Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        display: ['"Fredoka"', '"Public Sans"', 'sans-serif'],
-        brand: ['"Fredoka"', 'sans-serif'],
+        sans: ['var(--font-family-base)'],
+        display: ['var(--font-family-base)'],
+        brand: ['var(--font-family-base)'],
+        logo: ["'Fredoka'", "'Baloo 2'", 'sans-serif'],
       },
       boxShadow: {
         soft: '0 2px 8px -2px rgba(20, 24, 43, 0.06), 0 4px 16px -4px rgba(20, 24, 43, 0.08)',
