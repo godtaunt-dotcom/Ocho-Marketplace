@@ -2,11 +2,15 @@
   "name": "ocho-project-starter",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "ocho/server",
+    "ocho/client"
+  ],
   "scripts": {
     "dev": "npm --prefix ocho run dev",
     "dev:server": "npm --prefix ocho run dev:server",
     "dev:client": "npm --prefix ocho run dev:client",
-    "build": "npm --prefix ocho run build",
+    "build": "npm --prefix ocho/server run prisma:generate && npm --prefix ocho/server run build && npm --prefix ocho/client run build",
     "test": "npm --prefix ocho run test",
     "start": "cd ocho/server && node dist/index.js"
   }

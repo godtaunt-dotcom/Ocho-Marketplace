@@ -15,6 +15,7 @@ Thumbs.db
 
 # Database
 *.db
+!ocho/server/prisma/seed.db
 *.db-journal
 *.sqlite
 *.sqlite-journal

@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import swaggerUi from 'swagger-ui-express';
 import { healthRouter } from './routes/health';
 import { configRouter } from './routes/config';
@@ -34,16 +35,29 @@ export function createApp(): Express {
   app.use('/api/items', itemsRouter);
   app.use('/api/campuses', campusesRouter);
 
-  // In production, serve the client's built static files
-  if (process.env.NODE_ENV === 'production') {
-    const clientDistPath = path.resolve(__dirname, '../../client/dist');
-    app.use(express.static(clientDistPath));
-
-    // For any non-API route, serve index.html (SPA hash-based routing)
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(clientDistPath, 'index.html'));
+  // API root info
+  app.get('/api', (_req: Request, res: Response) => {
+    res.json({
+      name: 'Ocho API',
+      status: 'online',
+      description: 'Marketplace Mahasiswa Unpad - REST API Engine',
+      docs: '/api/docs',
+      health: '/api/health',
     });
-  } else {
+  });
+
+  // In standalone production (non-Vercel), serve the client's built static files
+  if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+    const clientDistPath = path.resolve(__dirname, '../../client/dist');
+    if (fs.existsSync(clientDistPath)) {
+      app.use(express.static(clientDistPath));
+
+      // For any non-API route, serve index.html (SPA hash-based routing)
+      app.get('*', (_req: Request, res: Response) => {
+        res.sendFile(path.join(clientDistPath, 'index.html'));
+      });
+    }
+  } else if (!process.env.VERCEL) {
     // Root welcome (dev only — Vite proxy handles client in dev)
     app.get('/', (_req: Request, res: Response) => {
       res.json({
