@@ -12,6 +12,47 @@ interface SellModalProps {
   onSuccess: () => void;
 }
 
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 1000;
+        let { width, height } = img;
+
+        if (width > height) {
+          if (width > MAX_DIM) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          }
+        } else {
+          if (height > MAX_DIM) {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(e.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => resolve(e.target?.result as string);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
 export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState('');
@@ -47,7 +88,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
     }
   }, [selectedCategory]);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -56,19 +97,17 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
       return;
     }
 
-    Array.from(files).forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Ukuran foto maksimal 5 MB.');
-        return;
+    const compressedPhotos: string[] = [];
+    for (const file of Array.from(files)) {
+      if (file.size > 12 * 1024 * 1024) {
+        setError('Ukuran foto terlalu besar (maks 12 MB).');
+        continue;
       }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setPhotos((prev) => [...prev, event.target!.result as string].slice(0, 6));
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      const dataUrl = await compressImage(file);
+      if (dataUrl) compressedPhotos.push(dataUrl);
+    }
+
+    setPhotos((prev) => [...prev, ...compressedPhotos].slice(0, 6));
   };
 
   const removePhoto = (index: number) => {
