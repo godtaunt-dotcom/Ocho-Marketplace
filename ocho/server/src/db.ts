@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 function resolveDatabaseUrl(): string {
-  // If running in Vercel or AWS Lambda serverless environment
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  // If running in Vercel, Netlify, or AWS Lambda serverless environment
+  if (process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const tmpDb = '/tmp/dev.db';
     let isTmpValid = false;
     try {

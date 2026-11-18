@@ -13,5 +13,8 @@
     "build": "npm --prefix ocho/server run prisma:generate && npm --prefix ocho/server run build && npm --prefix ocho/client run build",
     "test": "npm --prefix ocho run test",
     "start": "cd ocho/server && node dist/index.js"
+  },
+  "dependencies": {
+    "serverless-http": "^4.0.0"
   }
 }
