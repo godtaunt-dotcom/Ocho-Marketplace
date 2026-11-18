@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   OrderItem,
+  OrderMessageItem,
   fetchOrders,
   confirmOrderReceived,
-  simulateOrderPayment,
+  confirmOrderPayment,
   updateOrderStatus,
   submitReview,
+  fetchOrderMessages,
+  sendOrderMessage,
 } from '../services/api';
+import { getStoredUser } from '../services/auth';
 import { formatRupiah, formatDateTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -19,6 +23,7 @@ interface OrdersPageProps {
 }
 
 export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem }) => {
+  const currentUser = getStoredUser();
   const [roleTab, setRoleTab] = useState<'buyer' | 'seller'>('buyer');
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +31,15 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
 
   // QRIS Payment Modal State
   const [selectedPaymentOrder, setSelectedPaymentOrder] = useState<OrderItem | null>(null);
-  const [simulatingPay, setSimulatingPay] = useState(false);
+  const [confirmingPay, setConfirmingPay] = useState(false);
+
+  // Pickup Chat Modal State
+  const [chatOrder, setChatOrder] = useState<OrderItem | null>(null);
+  const [chatMessages, setChatMessages] = useState<OrderMessageItem[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   // Review Modal State
   const [reviewOrder, setReviewOrder] = useState<OrderItem | null>(null);
@@ -51,18 +64,60 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
     loadOrders();
   }, [roleTab]);
 
-  const handleSimulatePayment = async (orderId: string) => {
-    setSimulatingPay(true);
+  const handleConfirmPayment = async (orderId: string) => {
+    setConfirmingPay(true);
     try {
-      await simulateOrderPayment(orderId);
+      await confirmOrderPayment(orderId);
       setSelectedPaymentOrder(null);
       await loadOrders();
     } catch (err: any) {
-      alert(err.message || 'Gagal menyelesaikan pembayaran');
+      alert(err.message || 'Gagal mengonfirmasi pembayaran');
     } finally {
-      setSimulatingPay(false);
+      setConfirmingPay(false);
     }
   };
+
+  const openChatModal = async (order: OrderItem) => {
+    setChatOrder(order);
+    setChatMessages(order.messages || []);
+    setChatLoading(true);
+    try {
+      const msgs = await fetchOrderMessages(order.id);
+      setChatMessages(msgs);
+    } catch {
+      // fallback to preloaded
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleSendMessage = async (customText?: string) => {
+    const text = (customText || chatInput).trim();
+    if (!text || !chatOrder) return;
+    setSendingMessage(true);
+    try {
+      const newMsg = await sendOrderMessage(chatOrder.id, text);
+      setChatMessages((prev) => [...prev, newMsg]);
+      setChatInput('');
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === chatOrder.id
+            ? { ...o, messages: [...(o.messages || []), newMsg] }
+            : o
+        )
+      );
+    } catch (err: any) {
+      alert(err.message || 'Gagal mengirim pesan');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [chatMessages, chatOrder]);
 
   const handleConfirmReceived = async (orderId: string) => {
     if (!confirm('Pastikan barang sudah Anda terima dan periksa kondisinya. Lanjutkan?')) return;
@@ -258,6 +313,14 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                       <span className="truncate">Antar ke: {order.deliveryAddress}</span>
                     </p>
                   )}
+                  {order.deliveryDate && (
+                    <p className="text-xs text-brand-text-secondary flex items-center gap-1">
+                      <Icon name="Calendar" size={16} className="text-brand-blue-600 shrink-0" />
+                      <span>
+                        Jadwal Antar: <strong className="text-brand-text-primary">{new Date(order.deliveryDate).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-right shrink-0">
@@ -290,7 +353,41 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Pickup Janjian Chat & WhatsApp */}
+                  {order.deliveryMethod === 'PICKUP' && ['PAID', 'PROCESSING', 'READY_FOR_PICKUP', 'COMPLETED'].includes(order.status) && (
+                    <>
+                      {(() => {
+                        const targetPhone = roleTab === 'buyer' ? order.seller.phone : order.buyerPhone;
+                        if (!targetPhone) return null;
+                        const cleanPhone = targetPhone.replace(/^0/, '62').replace(/\D/g, '');
+                        const waText = encodeURIComponent(
+                          `Halo kak, saya ${roleTab === 'buyer' ? 'pembeli' : 'penjual'} barang "${order.item.title}" di Ocho (#${order.orderNumber}). Mau janjian waktu dan titik temu pickup di kampus.`
+                        );
+                        return (
+                          <a
+                            href={`https://wa.me/${cleanPhone}?text=${waText}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-colors shrink-0"
+                          >
+                            <Icon name="WhatsappLogo" size={16} weight="fill" />
+                            <span>WhatsApp {roleTab === 'buyer' ? 'Penjual' : 'Pembeli'}</span>
+                          </a>
+                        );
+                      })()}
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openChatModal(order)}
+                      >
+                        <Icon name="ChatCircleDots" size={16} className="mr-1 text-brand-blue-600" />
+                        Chat Janjian Pickup {order.messages && order.messages.length > 0 && `(${order.messages.length})`}
+                      </Button>
+                    </>
+                  )}
+
                   {/* Buyer: Pay QRIS */}
                   {roleTab === 'buyer' && order.status === 'PENDING_PAYMENT' && order.paymentMethod === 'QRIS' && (
                     <Button
@@ -377,19 +474,26 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         </div>
       )}
 
-      {/* QRIS Payment Modal */}
+      {/* Real QRIS Payment Modal */}
       {selectedPaymentOrder && (
         <Modal
           isOpen={true}
           onClose={() => setSelectedPaymentOrder(null)}
           title="Pembayaran QRIS Ocho"
-          description={`Scan QRIS untuk pesanan #${selectedPaymentOrder.orderNumber}`}
+          description={`Scan QRIS resmi untuk pesanan #${selectedPaymentOrder.orderNumber}`}
         >
           <div className="py-4 text-center space-y-4">
-            <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
-              <Icon name="QrCode" size={192} className="mx-auto text-brand-text-primary" />
-              <p className="text-xs font-mono font-bold text-brand-blue-700">
-                NMID: ID1020261023OCHO
+            <div className="bg-white p-3 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2 max-w-[280px] shadow-sm">
+              <img
+                src="/qris.jpg"
+                alt="QRIS Ocho Resmi"
+                className="w-full h-auto rounded-xl object-contain mx-auto border border-brand-border/40"
+              />
+              <div className="text-[11px] font-mono font-bold text-brand-blue-700 bg-brand-surface py-1 px-2 rounded-lg">
+                NMID: ID1026493553733
+              </div>
+              <p className="text-[11px] text-brand-text-secondary leading-tight">
+                Bisa di-scan dari GoPay, BCA, Mandiri, BNI, BRI, OVO, atau Dana.
               </p>
             </div>
 
@@ -399,14 +503,14 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                 {formatRupiah(selectedPaymentOrder.buyerTotalRupiah)}
               </p>
               <p className="text-[11px] text-brand-text-secondary">
-                Bisa di-scan menggunakan GoPay, OVO, Dana, ShopeePay, atau BCA Mobile.
+                Pastikan nominal transfer sesuai dengan total tagihan di atas.
               </p>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] p-3 rounded-xl flex items-start gap-2">
-              <Icon name="Clock" size={16} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="bg-brand-blue-50 border border-brand-blue-100 text-brand-blue-900 text-[11px] p-3 rounded-xl flex items-start gap-2 text-left">
+              <Icon name="Info" size={16} className="text-brand-blue-600 shrink-0 mt-0.5" />
               <span>
-                Mode Sandbox Testing: Klik tombol di bawah untuk menyimulasikan notifikasi sukses dari payment gateway secara instan.
+                Setelah transfer QRIS berhasil di aplikasi perbankan kamu, klik tombol <strong>Saya Sudah Membayar</strong> di bawah agar pesanan segera diproses.
               </span>
             </div>
 
@@ -417,12 +521,152 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
               <Button
                 variant="primary"
                 size="sm"
-                disabled={simulatingPay}
-                onClick={() => handleSimulatePayment(selectedPaymentOrder.id)}
+                disabled={confirmingPay}
+                onClick={() => handleConfirmPayment(selectedPaymentOrder.id)}
               >
-                {simulatingPay ? 'Memproses...' : 'Simulasikan Pembayaran Sukses'}
+                {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar'}
               </Button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Pickup Janjian Chat Modal */}
+      {chatOrder && (
+        <Modal
+          isOpen={true}
+          onClose={() => setChatOrder(null)}
+          title="Chat Janjian Titik Temu (Pickup)"
+          description={`Pesanan #${chatOrder.orderNumber} - ${chatOrder.item.title}`}
+        >
+          <div className="space-y-4 py-2">
+            {/* Header info about counterpart */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-surface rounded-xl border border-brand-border text-xs">
+              <div>
+                <span className="text-brand-text-secondary">
+                  {roleTab === 'buyer' ? 'Penjual: ' : 'Pembeli: '}
+                </span>
+                <strong className="text-brand-text-primary">
+                  {roleTab === 'buyer' ? chatOrder.seller.name : chatOrder.buyer.name}
+                </strong>
+                {roleTab === 'buyer' && chatOrder.seller.isVerified && (
+                  <span className="ml-1.5 inline-flex items-center text-[10px] text-brand-blue-600 bg-brand-blue-50 px-1.5 py-0.5 rounded-full font-bold">
+                    Terverifikasi
+                  </span>
+                )}
+              </div>
+
+              {(() => {
+                const targetPhone = roleTab === 'buyer' ? chatOrder.seller.phone : chatOrder.buyerPhone;
+                if (!targetPhone) return null;
+                const cleanPhone = targetPhone.replace(/^0/, '62').replace(/\D/g, '');
+                const waText = encodeURIComponent(
+                  `Halo kak, saya ${roleTab === 'buyer' ? 'pembeli' : 'penjual'} barang "${chatOrder.item.title}" di Ocho (#${chatOrder.orderNumber}). Mau janjian waktu dan titik temu pickup di kampus.`
+                );
+                return (
+                  <a
+                    href={`https://wa.me/${cleanPhone}?text=${waText}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-colors"
+                  >
+                    <Icon name="WhatsappLogo" size={14} weight="fill" />
+                    <span>WhatsApp</span>
+                  </a>
+                );
+              })()}
+            </div>
+
+            {/* Quick Suggestion Chips */}
+            <div className="space-y-1">
+              <span className="text-[11px] text-brand-text-secondary font-medium">Template pesan cepat:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  'Bisa janjian di Bale Sawala?',
+                  'Bisa ketemu di Gerbang Lama (Gerlam)?',
+                  'Bisa ketemu di Perpustakaan Pusat?',
+                  'Saya sudah di lokasi janjian ya!',
+                ].map((template) => (
+                  <button
+                    key={template}
+                    type="button"
+                    onClick={() => handleSendMessage(template)}
+                    className="text-[11px] bg-white border border-brand-border/80 hover:border-brand-blue-400 hover:text-brand-blue-600 px-2.5 py-1 rounded-full transition-colors"
+                  >
+                    {template}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chat Messages Container */}
+            <div
+              ref={chatScrollRef}
+              className="bg-brand-surface/60 border border-brand-border rounded-2xl p-3 h-64 overflow-y-auto space-y-2.5"
+            >
+              {chatLoading ? (
+                <div className="flex items-center justify-center h-full text-xs text-brand-text-secondary">
+                  Memuat riwayat chat...
+                </div>
+              ) : chatMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-4 space-y-1 text-xs text-brand-text-secondary">
+                  <Icon name="ChatCircleDots" size={24} className="text-brand-text-secondary/60 mb-1" />
+                  <p className="font-bold text-brand-text-primary">Belum ada percakapan</p>
+                  <p>Mulai janjian lokasi dan jam temu pengambilan barang di kampus Unpad.</p>
+                </div>
+              ) : (
+                chatMessages.map((msg) => {
+                  const isMe = msg.senderId === currentUser?.id;
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
+                    >
+                      <div className="flex items-center gap-1 text-[10px] text-brand-text-secondary mb-0.5">
+                        <span className="font-bold">{isMe ? 'Anda' : msg.sender?.name}</span>
+                        <span>&bull;</span>
+                        <span>{formatDateTime(msg.createdAt)}</span>
+                      </div>
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
+                          isMe
+                            ? 'bg-brand-blue-600 text-white rounded-tr-xs shadow-xs'
+                            : 'bg-white text-brand-text-primary border border-brand-border rounded-tl-xs shadow-xs'
+                        }`}
+                      >
+                        {msg.message}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Send Message Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+              }}
+              className="flex gap-2 pt-1"
+            >
+              <input
+                type="text"
+                placeholder="Ketik pesan janjian atau titik temu..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                className="flex-1 px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                disabled={sendingMessage || !chatInput.trim()}
+              >
+                <Icon name="PaperPlaneRight" size={16} weight="fill" className="mr-1" />
+                {sendingMessage ? 'Mengirim...' : 'Kirim'}
+              </Button>
+            </form>
           </div>
         </Modal>
       )}

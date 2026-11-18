@@ -422,7 +422,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                       Pickup Kampus
                     </span>
                     <span className="text-[10px] text-brand-text-secondary">
-                      Temu di Gerlam / Rektorat
+                      Chat & janjian titik temu
                     </span>
                   </div>
                 </button>
@@ -451,7 +451,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                       Antar Tim Ocho
                     </span>
                     <span className="text-[10px] text-brand-text-secondary">
-                      {isPickupOnly ? 'Barang besar: hanya pickup' : 'Langsung ke depan kos'}
+                      {isPickupOnly ? 'Barang besar: hanya pickup' : 'Pilih alamat & jadwal (maks 3 hari)'}
                     </span>
                   </div>
                 </button>

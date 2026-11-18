@@ -38,6 +38,11 @@ import {
   EnvelopeSimple,
   Stack,
   CircleNotch,
+  Calendar,
+  CalendarBlank,
+  ChatCircleDots,
+  WhatsappLogo,
+  PaperPlaneRight,
   IconProps as PhosphorIconProps,
 } from '@phosphor-icons/react';
 
@@ -79,6 +84,11 @@ export type IconName =
   | 'MapPin'
   | 'EnvelopeSimple'
   | 'Stack'
+  | 'Calendar'
+  | 'CalendarBlank'
+  | 'ChatCircleDots'
+  | 'WhatsappLogo'
+  | 'PaperPlaneRight'
   | 'Spinner';
 
 const iconComponentMap: Record<IconName, React.ComponentType<PhosphorIconProps>> = {
@@ -119,6 +129,11 @@ const iconComponentMap: Record<IconName, React.ComponentType<PhosphorIconProps>>
   MapPin,
   EnvelopeSimple,
   Stack,
+  Calendar,
+  CalendarBlank,
+  ChatCircleDots,
+  WhatsappLogo,
+  PaperPlaneRight,
   Spinner: CircleNotch,
 };
 

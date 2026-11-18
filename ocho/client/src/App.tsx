@@ -12,7 +12,7 @@ import { Badge } from './components/ui/Badge';
 import { LogoIcon } from './components/ui/Logo';
 import { SellModal } from './components/ui/SellModal';
 import { WalletModal } from './components/ui/WalletModal';
-import { ItemDetail, OrderItem, createOrder, simulateOrderPayment } from './services/api';
+import { ItemDetail, OrderItem, createOrder, confirmOrderPayment } from './services/api';
 import { formatRupiah } from './utils/format';
 import {
   AuthUser,
@@ -59,11 +59,12 @@ export const App: React.FC = () => {
     paymentMethod: 'QRIS' | 'COD';
   } | null>(null);
   const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [checkoutDeliveryDate, setCheckoutDeliveryDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutNotes, setCheckoutNotes] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [createdOrderResult, setCreatedOrderResult] = useState<OrderItem | null>(null);
-  const [simulatingPay, setSimulatingPay] = useState(false);
+  const [confirmingPay, setConfirmingPay] = useState(false);
 
   // Showcase state
   const [inputPrice, setInputPrice] = useState<number>(75000);
@@ -162,9 +163,15 @@ export const App: React.FC = () => {
   const handleCheckoutConfirm = async () => {
     if (!checkoutModalItem) return;
 
-    if (checkoutModalItem.deliveryMethod === 'DELIVERY' && !checkoutAddress.trim()) {
-      alert('Alamat pengantaran (nama kos / gedung) wajib diisi.');
-      return;
+    if (checkoutModalItem.deliveryMethod === 'DELIVERY') {
+      if (!checkoutAddress.trim()) {
+        alert('Alamat pengantaran (nama kos / gedung) wajib diisi.');
+        return;
+      }
+      if (!checkoutDeliveryDate.trim()) {
+        alert('Tanggal pengantaran wajib dipilih (maksimal 3 hari dari sekarang).');
+        return;
+      }
     }
 
     setCheckoutLoading(true);
@@ -174,6 +181,7 @@ export const App: React.FC = () => {
         deliveryMethod: checkoutModalItem.deliveryMethod,
         paymentMethod: checkoutModalItem.paymentMethod,
         deliveryAddress: checkoutAddress.trim() || null,
+        deliveryDate: checkoutModalItem.deliveryMethod === 'DELIVERY' ? checkoutDeliveryDate : null,
         buyerPhone: checkoutPhone.trim() || currentUser?.phone || '081234567890',
         notes: checkoutNotes.trim() || null,
       });
@@ -186,19 +194,19 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleSimulatePaymentFromCheckout = async () => {
+  const handleConfirmPaymentFromCheckout = async () => {
     if (!createdOrderResult) return;
-    setSimulatingPay(true);
+    setConfirmingPay(true);
     try {
-      await simulateOrderPayment(createdOrderResult.id);
-      alert('Pembayaran QRIS berhasil! Pesananmu kini berstatus PAID.');
+      await confirmOrderPayment(createdOrderResult.id);
+      alert('Pembayaran QRIS berhasil dikonfirmasi! Pesananmu kini berstatus PAID.');
       setCreatedOrderResult(null);
       setCheckoutModalItem(null);
       navigateTo('#/orders');
     } catch (err: any) {
-      alert(err.message || 'Gagal simulasi pembayaran.');
+      alert(err.message || 'Gagal mengonfirmasi pembayaran.');
     } finally {
-      setSimulatingPay(false);
+      setConfirmingPay(false);
     }
   };
 
@@ -549,18 +557,39 @@ export const App: React.FC = () => {
                 <>
                   <div className="space-y-1">
                     <h4 className="font-display font-bold text-base text-brand-text-primary">
-                      Scan QRIS untuk Menyelesaikan Pembayaran
+                      Scan QRIS Resmi untuk Menyelesaikan Pembayaran
                     </h4>
                     <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
                       Barang di-reserve selama <strong className="text-brand-orange font-bold">30 menit</strong>.
                     </p>
                   </div>
 
-                  <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
-                    <Icon name="QrCode" size={160} className="mx-auto text-brand-text-primary" />
-                    <p className="text-xs font-mono font-bold text-brand-blue-700">
-                      Total: {formatRupiah(createdOrderResult.buyerTotalRupiah)}
+                  <div className="bg-white p-3 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2 max-w-[280px] shadow-sm">
+                    <img
+                      src="/qris.jpg"
+                      alt="QRIS Ocho Resmi"
+                      className="w-full h-auto rounded-xl object-contain mx-auto border border-brand-border/40"
+                    />
+                    <div className="text-[11px] font-mono font-bold text-brand-blue-700 bg-brand-surface py-1 px-2 rounded-lg">
+                      NMID: ID1026493553733
+                    </div>
+                    <p className="text-[11px] text-brand-text-secondary leading-tight">
+                      Bisa di-scan dari GoPay, BCA, Mandiri, BNI, BRI, OVO, atau Dana.
                     </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-brand-text-secondary">Total Tagihan:</p>
+                    <p className="font-display font-black text-2xl text-brand-orange tabular-nums">
+                      {formatRupiah(createdOrderResult.buyerTotalRupiah)}
+                    </p>
+                  </div>
+
+                  <div className="bg-brand-blue-50 border border-brand-blue-100 text-brand-blue-900 text-[11px] p-3 rounded-xl flex items-start gap-2 text-left">
+                    <Icon name="Info" size={16} className="text-brand-blue-600 shrink-0 mt-0.5" />
+                    <span>
+                      Setelah transfer berhasil pada aplikasi bank atau e-wallet kamu, klik tombol <strong>Saya Sudah Membayar</strong> di bawah.
+                    </span>
                   </div>
 
                   <div className="flex justify-center gap-2 pt-2">
@@ -578,10 +607,10 @@ export const App: React.FC = () => {
                     <Button
                       variant="primary"
                       size="sm"
-                      disabled={simulatingPay}
-                      onClick={handleSimulatePaymentFromCheckout}
+                      disabled={confirmingPay}
+                      onClick={handleConfirmPaymentFromCheckout}
                     >
-                      {simulatingPay ? 'Memproses...' : 'Simulasi Bayar QRIS Sukses'}
+                      {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar'}
                     </Button>
                   </div>
                 </>
@@ -631,19 +660,40 @@ export const App: React.FC = () => {
 
               {/* Delivery Details Form */}
               {checkoutModalItem.deliveryMethod === 'DELIVERY' && (
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1">
-                    <Icon name="Truck" size={16} className="text-brand-blue-600" />
-                    <span>Alamat Pengantaran (Nama Kos / Gedung) *</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Kos Pondok Melati Kamar 12, Jl. Sayang No. 45"
-                    value={checkoutAddress}
-                    onChange={(e) => setCheckoutAddress(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
-                  />
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
+                      <Icon name="Truck" size={16} className="text-brand-blue-600" />
+                      <span>Alamat Pengantaran (Nama Kos / Gedung) *</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Contoh: Kos Pondok Melati Kamar 12, Jl. Sayang No. 45"
+                      value={checkoutAddress}
+                      onChange={(e) => setCheckoutAddress(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
+                      <Icon name="Calendar" size={16} className="text-brand-blue-600" />
+                      <span>Tanggal Pengantaran (Pilihan Hari: Maksimal 3 Hari) *</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      min={new Date().toISOString().slice(0, 10)}
+                      max={new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10)}
+                      value={checkoutDeliveryDate}
+                      onChange={(e) => setCheckoutDeliveryDate(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                    />
+                    <p className="text-[10px] text-brand-text-secondary mt-1">
+                      Pilih tanggal pengantaran antara hari ini hingga maksimal 3 hari ke depan.
+                    </p>
+                  </div>
                 </div>
               )}
 

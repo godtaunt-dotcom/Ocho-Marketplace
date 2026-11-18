@@ -99,6 +99,21 @@ export interface ItemListResponse {
   };
 }
 
+export interface OrderMessageItem {
+  id: string;
+  orderId: string;
+  senderId: string;
+  message: string;
+  createdAt: string;
+  sender: {
+    id: string;
+    name: string;
+    phone?: string | null;
+    avatarUrl?: string | null;
+    role?: string;
+  };
+}
+
 export interface OrderItem {
   id: string;
   orderNumber: string;
@@ -112,11 +127,14 @@ export interface OrderItem {
   buyerTotalRupiah: number;
   deliveryMethod: 'PICKUP' | 'DELIVERY';
   deliveryAddress: string | null;
+  deliveryDate?: string | null;
   buyerPhone: string;
   paymentMethod: 'QRIS' | 'COD';
   status: 'PENDING_PAYMENT' | 'PAID' | 'PROCESSING' | 'READY_FOR_PICKUP' | 'ON_DELIVERY' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
   reservedUntil: string | null;
   notes: string | null;
+  paymentProofUrl?: string | null;
+  messages?: OrderMessageItem[];
   createdAt: string;
   item: {
     id: string;
@@ -271,6 +289,7 @@ export async function createOrder(payload: {
   deliveryMethod: 'PICKUP' | 'DELIVERY';
   paymentMethod: 'QRIS' | 'COD';
   deliveryAddress?: string | null;
+  deliveryDate?: string | null;
   buyerPhone: string;
   notes?: string | null;
 }): Promise<OrderItem> {
@@ -335,6 +354,37 @@ export async function simulateOrderPayment(id: string): Promise<void> {
     const json = await res.json();
     throw new Error(json.message || 'Gagal memproses simulasi pembayaran');
   }
+}
+
+export async function confirmOrderPayment(id: string, paymentProofUrl?: string): Promise<OrderItem> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}/confirm-payment`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ paymentProofUrl }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal mengonfirmasi pembayaran');
+  return json.data;
+}
+
+export async function fetchOrderMessages(orderId: string): Promise<OrderMessageItem[]> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/messages`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Gagal memuat pesan janjian');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function sendOrderMessage(orderId: string, message: string): Promise<OrderMessageItem> {
+  const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/messages`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ message }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal mengirim pesan');
+  return json.data;
 }
 
 export async function submitReview(payload: {

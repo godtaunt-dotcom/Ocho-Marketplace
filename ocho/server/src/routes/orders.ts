@@ -16,6 +16,7 @@ const createOrderSchema = z.object({
     errorMap: () => ({ message: 'Pilih metode pembayaran: QRIS atau COD' }),
   }),
   deliveryAddress: z.string().max(300).optional().nullable(),
+  deliveryDate: z.string().optional().nullable(),
   buyerPhone: z.string().min(8, 'Nomor WhatsApp minimal 8 karakter').max(20),
   notes: z.string().max(200).optional().nullable(),
 });
@@ -89,13 +90,56 @@ ordersRouter.post('/', requireAuth, async (req: AuthenticatedRequest, res: Respo
       return;
     }
 
-    // 6. Delivery address required for delivery
-    if (body.deliveryMethod === 'DELIVERY' && (!body.deliveryAddress || !body.deliveryAddress.trim())) {
-      res.status(400).json({
-        error: 'Validation Error',
-        message: 'Alamat pengantaran (nama kos / gedung) wajib diisi untuk opsi antar.',
-      });
-      return;
+    // 6. Delivery address & date required for delivery
+    let parsedDeliveryDate: Date | null = null;
+    if (body.deliveryMethod === 'DELIVERY') {
+      if (!body.deliveryAddress || !body.deliveryAddress.trim()) {
+        res.status(400).json({
+          error: 'Validation Error',
+          message: 'Alamat pengantaran (nama kos / gedung) wajib diisi untuk opsi antar.',
+        });
+        return;
+      }
+
+      if (!body.deliveryDate || !body.deliveryDate.trim()) {
+        res.status(400).json({
+          error: 'Validation Error',
+          message: 'Tanggal pengantaran wajib dipilih untuk opsi antar (maksimal 3 hari ke depan).',
+        });
+        return;
+      }
+
+      parsedDeliveryDate = new Date(body.deliveryDate);
+      if (isNaN(parsedDeliveryDate.getTime())) {
+        res.status(400).json({
+          error: 'Validation Error',
+          message: 'Format tanggal pengantaran tidak valid.',
+        });
+        return;
+      }
+
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() + 3);
+      maxDate.setHours(23, 59, 59, 999);
+
+      if (parsedDeliveryDate < todayStart) {
+        res.status(400).json({
+          error: 'Validation Error',
+          message: 'Tanggal pengantaran tidak boleh di masa lalu.',
+        });
+        return;
+      }
+
+      if (parsedDeliveryDate > maxDate) {
+        res.status(400).json({
+          error: 'Validation Error',
+          message: 'Tanggal pengantaran maksimal 3 hari dari tanggal pemesanan.',
+        });
+        return;
+      }
     }
 
     // 7. Check if buyer qualifies for first-order free delivery
@@ -155,6 +199,7 @@ ordersRouter.post('/', requireAuth, async (req: AuthenticatedRequest, res: Respo
           buyerTotalRupiah: totals.buyerTotal,
           deliveryMethod: body.deliveryMethod,
           deliveryAddress: body.deliveryAddress ? body.deliveryAddress.trim() : null,
+          deliveryDate: parsedDeliveryDate,
           buyerPhone: body.buyerPhone.trim(),
           paymentMethod: body.paymentMethod,
           status: initialStatus,
@@ -244,10 +289,18 @@ ordersRouter.get('/', requireAuth, async (req: AuthenticatedRequest, res: Respon
             category: { select: { name: true } },
           },
         },
-        buyer: { select: { id: true, name: true } },
-        seller: { select: { id: true, name: true } },
+        buyer: { select: { id: true, name: true, phone: true } },
+        seller: { select: { id: true, name: true, phone: true } },
         payment: true,
         review: true,
+        messages: {
+          include: {
+            sender: {
+              select: { id: true, name: true, phone: true },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
       },
     });
 
@@ -279,6 +332,14 @@ ordersRouter.get('/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
         },
         payment: true,
         review: true,
+        messages: {
+          include: {
+            sender: {
+              select: { id: true, name: true, phone: true },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
       },
     });
 
@@ -456,6 +517,178 @@ ordersRouter.post('/:id/pay-simulate', requireAuth, async (req: AuthenticatedReq
       status: 'PAID',
     });
   } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/orders/:id/confirm-payment
+ * Real payment confirmation submitted by the buyer after scanning the real QRIS.
+ * Transitions order from PENDING_PAYMENT to PAID.
+ */
+ordersRouter.post('/:id/confirm-payment', requireAuth, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user!;
+    const { paymentProofUrl } = req.body || {};
+
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      include: { payment: true, item: true },
+    });
+
+    if (!order) {
+      res.status(404).json({ error: 'Not Found', message: 'Pesanan tidak ditemukan.' });
+      return;
+    }
+
+    if (order.buyerId !== user.id && user.role !== 'ADMIN') {
+      res.status(403).json({ error: 'Forbidden', message: 'Hanya pembeli yang dapat mengonfirmasi pembayaran.' });
+      return;
+    }
+
+    if (order.status === 'PAID') {
+      res.json({
+        message: 'Pembayaran sudah dikonfirmasi sebelumnya.',
+        data: order,
+      });
+      return;
+    }
+
+    if (order.status !== 'PENDING_PAYMENT') {
+      res.status(400).json({
+        error: 'Bad Request',
+        message: `Pesanan dalam status ${order.status} tidak dapat dikonfirmasi pembayarannya.`,
+      });
+      return;
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      if (order.payment) {
+        await tx.payment.update({
+          where: { id: order.payment.id },
+          data: {
+            status: 'SETTLED',
+            settledAt: new Date(),
+          },
+        });
+      }
+
+      return tx.order.update({
+        where: { id: order.id },
+        data: {
+          status: 'PAID',
+          paymentProofUrl: paymentProofUrl || null,
+        },
+        include: {
+          item: { include: { photos: true, category: true } },
+          seller: { select: { id: true, name: true, phone: true } },
+          buyer: { select: { id: true, name: true, phone: true } },
+          payment: true,
+        },
+      });
+    });
+
+    res.json({
+      message: 'Pembayaran QRIS berhasil dikonfirmasi! Pesanan akan segera diproses oleh penjual.',
+      data: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/orders/:id/messages
+ * List chat messages between buyer and seller for an order.
+ */
+ordersRouter.get('/:id/messages', requireAuth, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user!;
+
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, buyerId: true, sellerId: true },
+    });
+
+    if (!order) {
+      res.status(404).json({ error: 'Not Found', message: 'Pesanan tidak ditemukan.' });
+      return;
+    }
+
+    if (order.buyerId !== user.id && order.sellerId !== user.id && user.role !== 'ADMIN') {
+      res.status(403).json({ error: 'Forbidden', message: 'Akses ditolak.' });
+      return;
+    }
+
+    const messages = await prisma.orderMessage.findMany({
+      where: { orderId: order.id },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        sender: {
+          select: { id: true, name: true, avatarUrl: true, role: true },
+        },
+      },
+    });
+
+    res.json({ data: messages });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const sendOrderMessageSchema = z.object({
+  message: z.string().min(1, 'Pesan tidak boleh kosong').max(500, 'Pesan maksimal 500 karakter'),
+});
+
+/**
+ * POST /api/orders/:id/messages
+ * Send a chat message for an order (buyer or seller).
+ */
+ordersRouter.post('/:id/messages', requireAuth, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user!;
+    const body = sendOrderMessageSchema.parse(req.body);
+
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, buyerId: true, sellerId: true },
+    });
+
+    if (!order) {
+      res.status(404).json({ error: 'Not Found', message: 'Pesanan tidak ditemukan.' });
+      return;
+    }
+
+    if (order.buyerId !== user.id && order.sellerId !== user.id && user.role !== 'ADMIN') {
+      res.status(403).json({ error: 'Forbidden', message: 'Akses ditolak.' });
+      return;
+    }
+
+    const created = await prisma.orderMessage.create({
+      data: {
+        orderId: order.id,
+        senderId: user.id,
+        message: body.message.trim(),
+      },
+      include: {
+        sender: {
+          select: { id: true, name: true, avatarUrl: true, role: true },
+        },
+      },
+    });
+
+    res.status(201).json({
+      message: 'Pesan berhasil terkirim.',
+      data: created,
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({
+        error: 'Validation Error',
+        message: err.errors[0]?.message || 'Pesan tidak valid.',
+      });
+      return;
+    }
     next(err);
   }
 });

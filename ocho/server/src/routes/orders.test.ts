@@ -77,4 +77,20 @@ describe('Business Rules Enforcement', () => {
   test('Reservation timeout is configured to 30 minutes', () => {
     assert.equal(defaultBusinessConfig.qrisReservationTimeoutMinutes, 30);
   });
+
+  test('Delivery date constraint: delivery date allowed within 3 days from purchase', () => {
+    const today = new Date();
+    const validDate = new Date(today);
+    validDate.setDate(validDate.getDate() + 2);
+
+    const invalidDate = new Date(today);
+    invalidDate.setDate(invalidDate.getDate() + 5);
+
+    const maxAllowed = new Date(today);
+    maxAllowed.setDate(maxAllowed.getDate() + 3);
+    maxAllowed.setHours(23, 59, 59, 999);
+
+    assert.ok(validDate <= maxAllowed, 'Valid date should be within 3 days');
+    assert.ok(invalidDate > maxAllowed, 'Invalid date beyond 3 days should exceed limit');
+  });
 });

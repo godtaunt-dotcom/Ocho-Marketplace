@@ -40,6 +40,7 @@ model User {
   balanceEntries     SellerBalanceEntry[]
   payouts            Payout[]
   reportsFiled       Report[]             @relation("ReporterUser")
+  orderMessages      OrderMessage[]
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
 
@@ -117,15 +118,18 @@ model Order {
   buyerTotalRupiah   Int
   deliveryMethod     String              // PICKUP, DELIVERY
   deliveryAddress    String?
+  deliveryDate       DateTime?
   buyerPhone         String
   paymentMethod      String              // QRIS, COD
   status             String              @default("PENDING_PAYMENT")
   // PENDING_PAYMENT, PAID, PROCESSING, READY_FOR_PICKUP, ON_DELIVERY, COMPLETED, CANCELLED, DISPUTED
   reservedUntil      DateTime?
   notes              String?
+  paymentProofUrl    String?
   payment            Payment?
   review             Review?
   balanceEntry       SellerBalanceEntry?
+  messages           OrderMessage[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -213,4 +217,17 @@ model Report {
 
   @@index([reporterId])
   @@index([itemId])
+}
+
+model OrderMessage {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([senderId])
 }
