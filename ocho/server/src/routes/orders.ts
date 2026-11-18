@@ -562,6 +562,14 @@ ordersRouter.post('/:id/confirm-payment', requireAuth, async (req: Authenticated
       return;
     }
 
+    if (!paymentProofUrl || typeof paymentProofUrl !== 'string' || !paymentProofUrl.trim()) {
+      res.status(400).json({
+        error: 'Validation Error',
+        message: 'Wajib mengunggah screenshot bukti pembayaran QRIS untuk konfirmasi.',
+      });
+      return;
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       if (order.payment) {
         await tx.payment.update({

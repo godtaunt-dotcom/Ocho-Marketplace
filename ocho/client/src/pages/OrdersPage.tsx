@@ -12,6 +12,7 @@ import {
 } from '../services/api';
 import { getStoredUser } from '../services/auth';
 import { formatRupiah, formatDateTime } from '../utils/format';
+import { compressImage } from '../utils/image';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
@@ -32,6 +33,9 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
   // QRIS Payment Modal State
   const [selectedPaymentOrder, setSelectedPaymentOrder] = useState<OrderItem | null>(null);
   const [confirmingPay, setConfirmingPay] = useState(false);
+  const [paymentProofUrl, setPaymentProofUrl] = useState<string | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [viewingProofUrl, setViewingProofUrl] = useState<string | null>(null);
 
   // Pickup Chat Modal State
   const [chatOrder, setChatOrder] = useState<OrderItem | null>(null);
@@ -64,11 +68,30 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
     loadOrders();
   }, [roleTab]);
 
+  const handleProofFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingProof(true);
+    try {
+      const compressed = await compressImage(file);
+      setPaymentProofUrl(compressed);
+    } catch (err: any) {
+      alert(err.message || 'Gagal memproses gambar screenshot bukti bayar');
+    } finally {
+      setUploadingProof(false);
+    }
+  };
+
   const handleConfirmPayment = async (orderId: string) => {
+    if (!paymentProofUrl) {
+      alert('Wajib mengunggah screenshot bukti transfer pembayaran QRIS sebelum konfirmasi.');
+      return;
+    }
     setConfirmingPay(true);
     try {
-      await confirmOrderPayment(orderId);
+      await confirmOrderPayment(orderId, paymentProofUrl);
       setSelectedPaymentOrder(null);
+      setPaymentProofUrl(null);
       await loadOrders();
     } catch (err: any) {
       alert(err.message || 'Gagal mengonfirmasi pembayaran');
@@ -457,6 +480,18 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                     </>
                   )}
 
+                  {/* View Payment Proof (Buyer or Seller) */}
+                  {order.paymentProofUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingProofUrl(order.paymentProofUrl!)}
+                    >
+                      <Icon name="FileText" size={16} className="mr-1 text-brand-blue-600" />
+                      Lihat Bukti Bayar
+                    </Button>
+                  )}
+
                   {/* Cancel Order */}
                   {['PENDING_PAYMENT', 'PROCESSING'].includes(order.status) && (
                     <Button
@@ -478,7 +513,10 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
       {selectedPaymentOrder && (
         <Modal
           isOpen={true}
-          onClose={() => setSelectedPaymentOrder(null)}
+          onClose={() => {
+            setSelectedPaymentOrder(null);
+            setPaymentProofUrl(null);
+          }}
           title="Pembayaran QRIS Ocho"
           description={`Scan QRIS resmi untuk pesanan #${selectedPaymentOrder.orderNumber}`}
         >
@@ -507,24 +545,77 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
               </p>
             </div>
 
-            <div className="bg-brand-blue-50 border border-brand-blue-100 text-brand-blue-900 text-[11px] p-3 rounded-xl flex items-start gap-2 text-left">
-              <Icon name="Info" size={16} className="text-brand-blue-600 shrink-0 mt-0.5" />
-              <span>
-                Setelah transfer QRIS berhasil di aplikasi perbankan kamu, klik tombol <strong>Saya Sudah Membayar</strong> di bawah agar pesanan segera diproses.
-              </span>
+            {/* Upload Bukti Pembayaran */}
+            <div className="bg-brand-surface p-3.5 rounded-2xl border border-brand-border space-y-2.5 text-left">
+              <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1.5">
+                <Icon name="UploadSimple" size={16} className="text-brand-blue-600" />
+                <span>Unggah Screenshot Bukti Transfer *</span>
+              </label>
+              <p className="text-[11px] text-brand-text-secondary leading-snug">
+                Wajib melampirkan screenshot atau foto resi pembayaran QRIS sebagai bukti konfirmasi transaksi.
+              </p>
+
+              {paymentProofUrl ? (
+                <div className="space-y-2">
+                  <div className="relative border border-brand-border rounded-xl overflow-hidden bg-white p-2">
+                    <img
+                      src={paymentProofUrl}
+                      alt="Bukti Transfer"
+                      className="max-h-48 w-auto mx-auto rounded-lg object-contain"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-emerald-700 font-bold flex items-center gap-1">
+                      <Icon name="CheckCircle" size={16} weight="fill" />
+                      Bukti transfer berhasil dipilih
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentProofUrl(null)}
+                      className="text-red-600 hover:underline font-bold text-[11px]"
+                    >
+                      Ganti Screenshot
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <label className="border-2 border-dashed border-brand-blue-300 hover:border-brand-blue-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-white transition-colors">
+                  <Icon name="UploadSimple" size={24} className="text-brand-blue-600 mb-1" />
+                  <span className="text-xs font-bold text-brand-blue-700">
+                    {uploadingProof ? 'Memproses gambar...' : 'Klik untuk Unggah Screenshot Bukti'}
+                  </span>
+                  <span className="text-[10px] text-brand-text-secondary mt-0.5">
+                    Format JPG, PNG, atau JPEG
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingProof}
+                    onChange={handleProofFileChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setSelectedPaymentOrder(null)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedPaymentOrder(null);
+                  setPaymentProofUrl(null);
+                }}
+              >
                 Tutup
               </Button>
               <Button
                 variant="primary"
                 size="sm"
-                disabled={confirmingPay}
+                disabled={confirmingPay || !paymentProofUrl || uploadingProof}
                 onClick={() => handleConfirmPayment(selectedPaymentOrder.id)}
               >
-                {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar'}
+                {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar & Kirim Bukti'}
               </Button>
             </div>
           </div>
@@ -671,6 +762,31 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         </Modal>
       )}
 
+      {/* Bukti Transfer Viewer Modal */}
+      {viewingProofUrl && (
+        <Modal
+          isOpen={true}
+          onClose={() => setViewingProofUrl(null)}
+          title="Bukti Transfer Pembayaran QRIS"
+          description="Foto struk atau screenshot transaksi yang diunggah oleh pembeli."
+        >
+          <div className="py-2 space-y-4 text-center">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl p-2 overflow-hidden max-h-[70vh] flex items-center justify-center">
+              <img
+                src={viewingProofUrl}
+                alt="Bukti Transfer QRIS"
+                className="max-h-[65vh] w-auto mx-auto object-contain rounded-xl shadow-xs"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="primary" size="sm" onClick={() => setViewingProofUrl(null)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {/* Review Modal */}
       {reviewOrder && (
         <Modal
@@ -731,6 +847,31 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                 onClick={handleSubmitReview}
               >
                 {submittingReview ? 'Mengirim...' : 'Kirim Ulasan'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Bukti Transfer Viewer Modal */}
+      {viewingProofUrl && (
+        <Modal
+          isOpen={true}
+          onClose={() => setViewingProofUrl(null)}
+          title="Bukti Transfer Pembayaran QRIS"
+          description="Foto struk atau screenshot transaksi yang diunggah oleh pembeli."
+        >
+          <div className="py-2 space-y-4 text-center">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl p-2 overflow-hidden max-h-[70vh] flex items-center justify-center">
+              <img
+                src={viewingProofUrl}
+                alt="Bukti Transfer QRIS"
+                className="max-h-[65vh] w-auto mx-auto object-contain rounded-xl shadow-xs"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="primary" size="sm" onClick={() => setViewingProofUrl(null)}>
+                Tutup
               </Button>
             </div>
           </div>

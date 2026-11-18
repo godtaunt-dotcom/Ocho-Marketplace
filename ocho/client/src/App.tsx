@@ -14,6 +14,7 @@ import { SellModal } from './components/ui/SellModal';
 import { WalletModal } from './components/ui/WalletModal';
 import { ItemDetail, OrderItem, createOrder, confirmOrderPayment } from './services/api';
 import { formatRupiah } from './utils/format';
+import { compressImage } from './utils/image';
 import {
   AuthUser,
   getStoredUser,
@@ -65,6 +66,8 @@ export const App: React.FC = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [createdOrderResult, setCreatedOrderResult] = useState<OrderItem | null>(null);
   const [confirmingPay, setConfirmingPay] = useState(false);
+  const [checkoutProofUrl, setCheckoutProofUrl] = useState<string | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
 
   // Showcase state
   const [inputPrice, setInputPrice] = useState<number>(75000);
@@ -194,14 +197,33 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleProofFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingProof(true);
+    try {
+      const compressed = await compressImage(file);
+      setCheckoutProofUrl(compressed);
+    } catch (err: any) {
+      alert(err.message || 'Gagal memproses gambar screenshot bukti bayar');
+    } finally {
+      setUploadingProof(false);
+    }
+  };
+
   const handleConfirmPaymentFromCheckout = async () => {
     if (!createdOrderResult) return;
+    if (!checkoutProofUrl) {
+      alert('Wajib mengunggah screenshot bukti transfer pembayaran QRIS sebelum konfirmasi.');
+      return;
+    }
     setConfirmingPay(true);
     try {
-      await confirmOrderPayment(createdOrderResult.id);
-      alert('Pembayaran QRIS berhasil dikonfirmasi! Pesananmu kini berstatus PAID.');
+      await confirmOrderPayment(createdOrderResult.id, checkoutProofUrl);
+      alert('Pembayaran QRIS dan bukti transfer berhasil dikonfirmasi! Pesananmu kini berstatus PAID.');
       setCreatedOrderResult(null);
       setCheckoutModalItem(null);
+      setCheckoutProofUrl(null);
       navigateTo('#/orders');
     } catch (err: any) {
       alert(err.message || 'Gagal mengonfirmasi pembayaran.');
@@ -585,11 +607,57 @@ export const App: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="bg-brand-blue-50 border border-brand-blue-100 text-brand-blue-900 text-[11px] p-3 rounded-xl flex items-start gap-2 text-left">
-                    <Icon name="Info" size={16} className="text-brand-blue-600 shrink-0 mt-0.5" />
-                    <span>
-                      Setelah transfer berhasil pada aplikasi bank atau e-wallet kamu, klik tombol <strong>Saya Sudah Membayar</strong> di bawah.
-                    </span>
+                  {/* Upload Bukti Pembayaran Form */}
+                  <div className="bg-brand-surface p-3.5 rounded-2xl border border-brand-border space-y-2.5 text-left">
+                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1.5">
+                      <Icon name="UploadSimple" size={16} className="text-brand-blue-600" />
+                      <span>Unggah Screenshot Bukti Transfer *</span>
+                    </label>
+                    <p className="text-[11px] text-brand-text-secondary leading-snug">
+                      Wajib melampirkan screenshot atau foto resi pembayaran QRIS sebagai bukti konfirmasi transaksi.
+                    </p>
+
+                    {checkoutProofUrl ? (
+                      <div className="space-y-2">
+                        <div className="relative border border-brand-border rounded-xl overflow-hidden bg-white p-2">
+                          <img
+                            src={checkoutProofUrl}
+                            alt="Bukti Transfer"
+                            className="max-h-48 w-auto mx-auto rounded-lg object-contain"
+                          />
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-emerald-700 font-bold flex items-center gap-1">
+                            <Icon name="CheckCircle" size={16} weight="fill" />
+                            Bukti transfer berhasil dipilih
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCheckoutProofUrl(null)}
+                            className="text-red-600 hover:underline font-bold text-[11px]"
+                          >
+                            Ganti Screenshot
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="border-2 border-dashed border-brand-blue-300 hover:border-brand-blue-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-white transition-colors">
+                        <Icon name="UploadSimple" size={24} className="text-brand-blue-600 mb-1" />
+                        <span className="text-xs font-bold text-brand-blue-700">
+                          {uploadingProof ? 'Memproses gambar...' : 'Klik untuk Unggah Screenshot Bukti'}
+                        </span>
+                        <span className="text-[10px] text-brand-text-secondary mt-0.5">
+                          Format JPG, PNG, atau JPEG
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingProof}
+                          onChange={handleProofFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
                   </div>
 
                   <div className="flex justify-center gap-2 pt-2">
@@ -599,6 +667,7 @@ export const App: React.FC = () => {
                       onClick={() => {
                         setCheckoutModalItem(null);
                         setCreatedOrderResult(null);
+                        setCheckoutProofUrl(null);
                         navigateTo('#/orders');
                       }}
                     >
@@ -607,10 +676,10 @@ export const App: React.FC = () => {
                     <Button
                       variant="primary"
                       size="sm"
-                      disabled={confirmingPay}
+                      disabled={confirmingPay || !checkoutProofUrl || uploadingProof}
                       onClick={handleConfirmPaymentFromCheckout}
                     >
-                      {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar'}
+                      {confirmingPay ? 'Memverifikasi...' : 'Saya Sudah Membayar & Kirim Bukti'}
                     </Button>
                   </div>
                 </>
