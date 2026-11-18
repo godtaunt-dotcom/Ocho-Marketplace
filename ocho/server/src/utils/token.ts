@@ -63,13 +63,21 @@ export function verifyToken(token: string): TokenPayload | null {
     const isSignatureValid = crypto.timingSafeEqual(sigBuf, expectedBuf);
     if (!isSignatureValid) return null;
 
-    const decoded = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as TokenPayload;
+    const decoded = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8')) as any;
+
+    if (!decoded || (!decoded.userId && !decoded.id)) {
+      return null;
+    }
+
+    if (!decoded.userId && decoded.id) {
+      decoded.userId = decoded.id;
+    }
 
     if (!decoded.exp || Date.now() > decoded.exp) {
       return null; // Expired
     }
 
-    return decoded;
+    return decoded as TokenPayload;
   } catch {
     return null;
   }

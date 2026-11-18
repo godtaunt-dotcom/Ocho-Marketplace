@@ -3,6 +3,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "ocho/client/dist",
   "framework": "vite",
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "{api/seed.db,ocho/server/prisma/**}"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

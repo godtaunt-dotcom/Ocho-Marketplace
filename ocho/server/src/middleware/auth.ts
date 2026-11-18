@@ -45,7 +45,7 @@ export async function requireAuth(
   }
 
   const payload: TokenPayload | null = verifyToken(token);
-  if (!payload) {
+  if (!payload || !payload.userId) {
     res.status(401).json({
       error: 'Unauthorized',
       message: 'Sesi tidak valid atau telah kedaluwarsa. Silakan login kembali.',
@@ -53,22 +53,30 @@ export async function requireAuth(
     return;
   }
 
-  // Fetch current user from DB to ensure still active & current verification status
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, isVerified: true },
-  });
+  try {
+    // Fetch current user from DB to ensure still active & current verification status
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, email: true, name: true, role: true, isVerified: true },
+    });
 
-  if (!user) {
+    if (!user) {
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Pengguna tidak ditemukan. Silakan login kembali.',
+      });
+      return;
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error('[authenticateUser] Error loading user:', err);
     res.status(401).json({
       error: 'Unauthorized',
-      message: 'Pengguna tidak ditemukan.',
+      message: 'Sesi pengguna tidak dapat diverifikasi. Silakan login kembali.',
     });
-    return;
   }
-
-  req.user = user;
-  next();
 }
 
 /**
@@ -112,17 +120,21 @@ export async function optionalAuth(
   }
 
   const payload = verifyToken(token);
-  if (!payload) {
+  if (!payload || !payload.userId) {
     return next();
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, isVerified: true },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, email: true, name: true, role: true, isVerified: true },
+    });
 
-  if (user) {
-    req.user = user;
+    if (user) {
+      req.user = user;
+    }
+  } catch (err) {
+    console.warn('[optionalAuth] Could not fetch user:', err);
   }
 
   next();
