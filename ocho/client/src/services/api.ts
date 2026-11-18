@@ -176,13 +176,24 @@ export interface BalanceData {
 
 export interface AdminStats {
   totalUsers: number;
+  verifiedUsersCount?: number;
+  unverifiedUsersCount?: number;
+  verificationRatePercent?: number;
   activeItems: number;
   totalOrders: number;
   completedOrdersCount: number;
+  completionRatePercent?: number;
   totalGmvRupiah: number;
   totalCommissionEarnedRupiah: number;
+  averageOrderValueRupiah?: number;
   pendingReportsCount: number;
   pendingPayoutsCount: number;
+  pendingPayoutAmountRupiah?: number;
+  pickupOrdersCount?: number;
+  deliveryOrdersCount?: number;
+  qrisOrdersCount?: number;
+  codOrdersCount?: number;
+  topCategories?: Array<{ name: string; itemCount: number }>;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
@@ -479,6 +490,17 @@ export async function verifyAdminUser(userId: string, isVerified: boolean): Prom
     body: JSON.stringify({ isVerified }),
   });
   if (!res.ok) throw new Error('Gagal memperbarui verifikasi pengguna');
+}
+
+export async function deleteAdminUser(userId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/users/${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Gagal menghapus akun pengguna');
+  }
 }
 
 export async function fetchAdminReports(): Promise<any[]> {

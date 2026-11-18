@@ -10,6 +10,7 @@ import {
   resolveAdminReport,
   fetchAdminPayouts,
   updateAdminPayout,
+  deleteAdminUser,
 } from '../services/api';
 import { formatRupiah, formatDateTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
@@ -85,6 +86,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
     }
   };
 
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Peringatan: Apakah Anda yakin ingin menghapus akun mahasiswa "${userName}"? Seluruh listing barang, pesanan, dan ulasan terkait akun ini akan dihapus secara permanen.`)) {
+      return;
+    }
+    try {
+      await deleteAdminUser(userId);
+      alert(`Akun "${userName}" berhasil dihapus.`);
+      await loadAllAdminData();
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghapus akun pengguna');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border/60 pb-6">
@@ -139,59 +153,169 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
           {/* TAB 1: KPI STATS OVERVIEW */}
           {activeTab === 'kpi' && stats && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
-                  <div className="flex items-center justify-between text-brand-text-secondary">
-                    <span className="text-xs font-semibold">Total GMV Penjualan</span>
-                    <Icon name="CurrencyDollar" size={20} className="text-emerald-600" />
+              {/* Row 1: Core Financial Performance */}
+              <div>
+                <h4 className="text-xs font-bold text-brand-text-secondary uppercase tracking-wider mb-3">
+                  Performa Finansial &amp; Monetisasi Platform
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Total GMV Penjualan</span>
+                      <Icon name="CurrencyDollar" size={20} className="text-emerald-600" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-emerald-800 tabular-nums">
+                      {formatRupiah(stats.totalGmvRupiah)}
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      Dari {stats.completedOrdersCount} transaksi sukses
+                    </p>
                   </div>
-                  <p className="font-display font-black text-2xl text-emerald-800 tabular-nums">
-                    {formatRupiah(stats.totalGmvRupiah)}
-                  </p>
-                  <p className="text-[11px] text-brand-text-secondary">
-                    Dari {stats.completedOrdersCount} pesanan selesai
-                  </p>
-                </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
-                  <div className="flex items-center justify-between text-brand-text-secondary">
-                    <span className="text-xs font-semibold">Komisi Platform Ocho (20%)</span>
-                    <Icon name="CreditCard" size={20} className="text-brand-blue-600" />
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Komisi Ocho (20% Net)</span>
+                      <Icon name="CreditCard" size={20} className="text-brand-blue-600" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-brand-blue-600 tabular-nums">
+                      {formatRupiah(stats.totalCommissionEarnedRupiah)}
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      Pendapatan bersih middleman
+                    </p>
                   </div>
-                  <p className="font-display font-black text-2xl text-brand-blue-600 tabular-nums">
-                    {formatRupiah(stats.totalCommissionEarnedRupiah)}
-                  </p>
-                  <p className="text-[11px] text-brand-text-secondary">
-                    Pendapatan operasional platform
-                  </p>
-                </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
-                  <div className="flex items-center justify-between text-brand-text-secondary">
-                    <span className="text-xs font-semibold">Mahasiswa Terdaftar</span>
-                    <Icon name="Users" size={20} className="text-purple-600" />
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Rata-rata Keranjang (AOV)</span>
+                      <Icon name="Money" size={20} className="text-brand-orange" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-brand-text-primary tabular-nums">
+                      {formatRupiah(stats.averageOrderValueRupiah || 0)}
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      Daya beli rata-rata per transaksi
+                    </p>
                   </div>
-                  <p className="font-display font-black text-2xl text-purple-900 tabular-nums">
-                    {stats.totalUsers}
-                  </p>
-                  <p className="text-[11px] text-brand-text-secondary">
-                    {stats.activeItems} barang aktif tayang
-                  </p>
-                </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
-                  <div className="flex items-center justify-between text-brand-text-secondary">
-                    <span className="text-xs font-semibold">Perlu Tindakan Admin</span>
-                    <Icon name="Warning" size={20} className="text-amber-500" />
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Liabilitas Pencairan (Payout)</span>
+                      <Icon name="Wallet" size={20} className="text-amber-500" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-amber-600 tabular-nums">
+                      {formatRupiah(stats.pendingPayoutAmountRupiah || 0)}
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      {stats.pendingPayoutsCount} antrean perlu ditransfer
+                    </p>
                   </div>
-                  <p className="font-display font-black text-2xl text-amber-600 tabular-nums">
-                    {stats.pendingReportsCount + stats.pendingPayoutsCount}
-                  </p>
-                  <p className="text-[11px] text-brand-text-secondary">
-                    {stats.pendingReportsCount} laporan, {stats.pendingPayoutsCount} pencairan
-                  </p>
                 </div>
               </div>
+
+              {/* Row 2: Operational & Trust Metrics */}
+              <div>
+                <h4 className="text-xs font-bold text-brand-text-secondary uppercase tracking-wider mb-3">
+                  Efisiensi Operasional, Logistik &amp; Konversi
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Tingkat Sukses (Fulfillment)</span>
+                      <Icon name="CheckCircle" size={20} className="text-emerald-600" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-brand-text-primary tabular-nums">
+                      {stats.completionRatePercent || 0}%
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      {stats.completedOrdersCount} selesai dari {stats.totalOrders} dibuat
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Distribusi Pengiriman</span>
+                      <Icon name="Truck" size={20} className="text-brand-blue-600" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-display font-black text-xl text-brand-text-primary tabular-nums">
+                        {stats.pickupOrdersCount || 0}
+                      </span>
+                      <span className="text-xs text-brand-text-secondary">Pickup</span>
+                      <span className="text-xs text-brand-text-secondary">&bull;</span>
+                      <span className="font-display font-black text-xl text-brand-text-primary tabular-nums">
+                        {stats.deliveryOrdersCount || 0}
+                      </span>
+                      <span className="text-xs text-brand-text-secondary">Delivery</span>
+                    </div>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      Beban operasional kurir kampus
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Metode Bayar (QRIS vs COD)</span>
+                      <Icon name="QrCode" size={20} className="text-purple-600" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-display font-black text-xl text-brand-text-primary tabular-nums">
+                        {stats.qrisOrdersCount || 0}
+                      </span>
+                      <span className="text-xs text-brand-text-secondary">QRIS</span>
+                      <span className="text-xs text-brand-text-secondary">&bull;</span>
+                      <span className="font-display font-black text-xl text-brand-text-primary tabular-nums">
+                        {stats.codOrdersCount || 0}
+                      </span>
+                      <span className="text-xs text-brand-text-secondary">COD</span>
+                    </div>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      Preferensi pembayaran mahasiswa
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
+                    <div className="flex items-center justify-between text-brand-text-secondary">
+                      <span className="text-xs font-semibold">Verifikasi Akun Kampus</span>
+                      <Icon name="ShieldCheck" size={20} className="text-emerald-600" />
+                    </div>
+                    <p className="font-display font-black text-2xl text-brand-text-primary tabular-nums">
+                      {stats.verificationRatePercent || 0}%
+                    </p>
+                    <p className="text-[11px] text-brand-text-secondary">
+                      {stats.verifiedUsersCount || 0} dari {stats.totalUsers} akun terverifikasi
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Top Categories */}
+              {stats.topCategories && stats.topCategories.length > 0 && (
+                <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-brand-text-primary uppercase tracking-wider">
+                      Kategori Paling Diminati (Berdasarkan Jumlah Listing Aktif)
+                    </h4>
+                    <span className="text-[11px] text-brand-text-secondary font-medium">
+                      Total {stats.activeItems} barang aktif
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {stats.topCategories.map((c, idx) => (
+                      <div
+                        key={c.name}
+                        className="bg-brand-surface p-3 rounded-xl border border-brand-border space-y-1"
+                      >
+                        <span className="text-[10px] font-bold text-brand-blue-600 bg-brand-blue-50 px-1.5 py-0.5 rounded">
+                          #{idx + 1}
+                        </span>
+                        <p className="font-bold text-xs text-brand-text-primary truncate">{c.name}</p>
+                        <p className="text-[11px] text-brand-text-secondary">{c.itemCount} barang</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -495,7 +619,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                           )}
                         </td>
                         <td className="p-3.5 font-bold">{u.role}</td>
-                        <td className="p-3.5 text-right">
+                        <td className="p-3.5 text-right flex items-center justify-end gap-1.5">
                           <Button
                             variant="outline"
                             size="sm"
@@ -503,6 +627,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                           >
                             {u.isVerified ? 'Cabut Verifikasi' : 'Beri Lencana'}
                           </Button>
+                          {u.role !== 'ADMIN' && (
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => handleDeleteUser(u.id, u.name)}
+                            >
+                              Hapus Akun
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))}

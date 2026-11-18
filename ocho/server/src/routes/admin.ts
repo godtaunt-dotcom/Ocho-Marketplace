@@ -24,36 +24,76 @@ adminRouter.get('/stats', async (_req: AuthenticatedRequest, res: Response, next
   try {
     const [
       totalUsers,
+      verifiedUsersCount,
       activeItems,
       totalOrders,
       completedOrders,
       pendingReports,
       pendingPayouts,
+      pendingPayoutList,
+      pickupOrdersCount,
+      deliveryOrdersCount,
+      qrisOrdersCount,
+      codOrdersCount,
+      categoriesWithCount,
     ] = await Promise.all([
       prisma.user.count(),
+      prisma.user.count({ where: { isVerified: true } }),
       prisma.item.count({ where: { status: 'ACTIVE' } }),
       prisma.order.count(),
       prisma.order.findMany({
         where: { status: 'COMPLETED' },
-        select: { itemPriceRupiah: true, commissionRupiah: true, deliveryFeeRupiah: true },
+        select: { itemPriceRupiah: true, commissionRupiah: true, deliveryFeeRupiah: true, buyerTotalRupiah: true },
       }),
       prisma.report.count({ where: { status: 'PENDING' } }),
       prisma.payout.count({ where: { status: 'PENDING' } }),
+      prisma.payout.findMany({ where: { status: 'PENDING' }, select: { amountRupiah: true } }),
+      prisma.order.count({ where: { deliveryMethod: 'PICKUP' } }),
+      prisma.order.count({ where: { deliveryMethod: 'DELIVERY' } }),
+      prisma.order.count({ where: { paymentMethod: 'QRIS' } }),
+      prisma.order.count({ where: { paymentMethod: 'COD' } }),
+      prisma.category.findMany({
+        select: {
+          id: true,
+          name: true,
+          _count: { select: { items: true } },
+        },
+        orderBy: { items: { _count: 'desc' } },
+        take: 5,
+      }),
     ]);
 
     const totalGmv = completedOrders.reduce((sum, o) => sum + o.itemPriceRupiah, 0);
     const totalCommission = completedOrders.reduce((sum, o) => sum + o.commissionRupiah, 0);
+    const averageOrderValue = completedOrders.length > 0 ? Math.round(totalGmv / completedOrders.length) : 0;
+    const completionRatePercent = totalOrders > 0 ? Number(((completedOrders.length / totalOrders) * 100).toFixed(1)) : 0;
+    const pendingPayoutAmount = pendingPayoutList.reduce((sum, p) => sum + p.amountRupiah, 0);
+    const verificationRatePercent = totalUsers > 0 ? Number(((verifiedUsersCount / totalUsers) * 100).toFixed(1)) : 0;
 
     res.json({
       data: {
         totalUsers,
+        verifiedUsersCount,
+        unverifiedUsersCount: totalUsers - verifiedUsersCount,
+        verificationRatePercent,
         activeItems,
         totalOrders,
         completedOrdersCount: completedOrders.length,
+        completionRatePercent,
         totalGmvRupiah: totalGmv,
         totalCommissionEarnedRupiah: totalCommission,
+        averageOrderValueRupiah: averageOrderValue,
         pendingReportsCount: pendingReports,
         pendingPayoutsCount: pendingPayouts,
+        pendingPayoutAmountRupiah: pendingPayoutAmount,
+        pickupOrdersCount,
+        deliveryOrdersCount,
+        qrisOrdersCount,
+        codOrdersCount,
+        topCategories: categoriesWithCount.map((c) => ({
+          name: c.name,
+          itemCount: c._count.items,
+        })),
       },
     });
   } catch (err) {
@@ -162,6 +202,79 @@ adminRouter.patch('/users/:id/verify', async (req: AuthenticatedRequest, res: Re
     });
 
     res.json({ message: 'Status verifikasi mahasiswa berhasil diperbarui.', data: updated });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/admin/users/:id
+ * Admin deletes a student or user account along with their associated data safely.
+ */
+adminRouter.delete('/users/:id', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const adminUser = req.user!;
+    const targetUserId = req.params.id;
+
+    if (adminUser.id === targetUserId) {
+      res.status(400).json({ error: 'Bad Request', message: 'Anda tidak dapat menghapus akun admin Anda sendiri.' });
+      return;
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!targetUser) {
+      res.status(404).json({ error: 'Not Found', message: 'Pengguna tidak ditemukan.' });
+      return;
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete order messages sent by user
+      await tx.orderMessage.deleteMany({ where: { senderId: targetUserId } });
+
+      // 2. Delete reviews written or received
+      await tx.review.deleteMany({
+        where: { OR: [{ buyerId: targetUserId }, { sellerId: targetUserId }] },
+      });
+
+      // 3. Delete balance entries and payouts
+      await tx.sellerBalanceEntry.deleteMany({ where: { sellerId: targetUserId } });
+      await tx.payout.deleteMany({ where: { sellerId: targetUserId } });
+
+      // 4. Delete reports filed
+      await tx.report.deleteMany({ where: { reporterId: targetUserId } });
+
+      // 5. Delete orders where user is buyer or seller
+      const userOrders = await tx.order.findMany({
+        where: { OR: [{ buyerId: targetUserId }, { sellerId: targetUserId }] },
+        select: { id: true },
+      });
+      const orderIds = userOrders.map((o) => o.id);
+      if (orderIds.length > 0) {
+        await tx.payment.deleteMany({ where: { orderId: { in: orderIds } } });
+        await tx.orderMessage.deleteMany({ where: { orderId: { in: orderIds } } });
+        await tx.order.deleteMany({ where: { id: { in: orderIds } } });
+      }
+
+      // 6. Delete items and item photos
+      const userItems = await tx.item.findMany({
+        where: { sellerId: targetUserId },
+        select: { id: true },
+      });
+      const itemIds = userItems.map((i) => i.id);
+      if (itemIds.length > 0) {
+        await tx.itemPhoto.deleteMany({ where: { itemId: { in: itemIds } } });
+        await tx.report.deleteMany({ where: { itemId: { in: itemIds } } });
+        await tx.item.deleteMany({ where: { id: { in: itemIds } } });
+      }
+
+      // 7. Delete user
+      await tx.user.delete({ where: { id: targetUserId } });
+    });
+
+    res.json({ message: `Akun mahasiswa "${targetUser.name}" (${targetUser.email}) berhasil dihapus dari sistem.` });
   } catch (err) {
     next(err);
   }
