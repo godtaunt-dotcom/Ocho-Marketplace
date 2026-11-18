@@ -14,6 +14,7 @@ import {
 import { formatRupiah, formatDateTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
 import { Icon } from '../components/ui/Icon';
 
 interface AdminPageProps {
@@ -28,6 +29,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
   const [payouts, setPayouts] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [orderFilter, setOrderFilter] = useState<string>('ALL');
+  const [adminViewingProofUrl, setAdminViewingProofUrl] = useState<string | null>(null);
 
   const loadAllAdminData = async () => {
     setLoading(true);
@@ -192,14 +195,43 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
             </div>
           )}
 
-          {/* TAB 2: ORDERS MANAGEMENT */}
+          {/* TAB 2: ORDERS MANAGEMENT & PAYMENT TRACKING */}
           {activeTab === 'orders' && (
-            <div className="bg-white rounded-3xl border border-brand-border shadow-card overflow-hidden">
-              <div className="p-4 border-b border-brand-border flex items-center justify-between">
-                <h3 className="font-display font-bold text-sm text-brand-text-primary">
-                  Semua Pesanan Jual-Beli
-                </h3>
+            <div className="bg-white rounded-3xl border border-brand-border shadow-card overflow-hidden space-y-4">
+              <div className="p-4 sm:p-5 border-b border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-display font-bold text-base text-brand-text-primary">
+                    Monitoring & Tracking Semua Pesanan
+                  </h3>
+                  <p className="text-xs text-brand-text-secondary">
+                    Pantau status pembayaran QRIS, screenshot bukti transfer, jadwal pengantaran, dan komisi platform.
+                  </p>
+                </div>
+
+                {/* Filter Status Tabs */}
+                <div className="flex flex-wrap gap-1.5 bg-brand-surface p-1 rounded-xl border border-brand-border text-xs">
+                  {[
+                    { id: 'ALL', label: `Semua (${orders.length})` },
+                    { id: 'PENDING_PAYMENT', label: `Belum Bayar (${orders.filter(o => o.status === 'PENDING_PAYMENT').length})` },
+                    { id: 'PAID', label: `Sudah Bayar (${orders.filter(o => o.status === 'PAID').length})` },
+                    { id: 'PROCESSING', label: `Diproses (${orders.filter(o => ['PROCESSING', 'READY_FOR_PICKUP', 'ON_DELIVERY'].includes(o.status)).length})` },
+                    { id: 'COMPLETED', label: `Selesai (${orders.filter(o => o.status === 'COMPLETED').length})` },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setOrderFilter(tab.id)}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                        orderFilter === tab.id
+                          ? 'bg-white shadow-xs text-brand-blue-600'
+                          : 'text-brand-text-secondary hover:text-brand-text-primary'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-brand-surface border-b border-brand-border text-brand-text-secondary">
@@ -208,25 +240,115 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                       <th className="p-3.5">Barang</th>
                       <th className="p-3.5">Pembeli</th>
                       <th className="p-3.5">Penjual</th>
-                      <th className="p-3.5">Total Bayar</th>
-                      <th className="p-3.5">Komisi</th>
+                      <th className="p-3.5">Metode &amp; Pengiriman</th>
+                      <th className="p-3.5">Bukti Transfer (SS)</th>
+                      <th className="p-3.5">Total &amp; Komisi 20%</th>
                       <th className="p-3.5">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-brand-border/60">
-                    {orders.map((o) => (
-                      <tr key={o.id} className="hover:bg-brand-surface/50">
-                        <td className="p-3.5 font-mono font-bold text-brand-blue-700">{o.orderNumber}</td>
-                        <td className="p-3.5 font-semibold max-w-xs truncate">{o.item?.title}</td>
-                        <td className="p-3.5">{o.buyer?.name}</td>
-                        <td className="p-3.5">{o.seller?.name}</td>
-                        <td className="p-3.5 font-bold">{formatRupiah(o.buyerTotalRupiah)}</td>
-                        <td className="p-3.5 font-bold text-red-600">{formatRupiah(o.commissionRupiah)}</td>
-                        <td className="p-3.5">
-                          <span className="font-bold text-[11px]">{o.status}</span>
-                        </td>
-                      </tr>
-                    ))}
+                    {orders
+                      .filter((o) => {
+                        if (orderFilter === 'ALL') return true;
+                        if (orderFilter === 'PROCESSING') return ['PROCESSING', 'READY_FOR_PICKUP', 'ON_DELIVERY'].includes(o.status);
+                        return o.status === orderFilter;
+                      })
+                      .map((o) => {
+                        const buyerPhoneClean = (o.buyerPhone || o.buyer?.phone || '').replace(/^0/, '62').replace(/\D/g, '');
+                        const sellerPhoneClean = (o.seller?.phone || '').replace(/^0/, '62').replace(/\D/g, '');
+
+                        return (
+                          <tr key={o.id} className="hover:bg-brand-surface/50">
+                            <td className="p-3.5">
+                              <span className="font-mono font-bold text-brand-blue-700 block">
+                                {o.orderNumber}
+                              </span>
+                              <span className="text-[10px] text-brand-text-secondary">
+                                {formatDateTime(o.createdAt)}
+                              </span>
+                            </td>
+                            <td className="p-3.5 font-semibold max-w-xs">
+                              <span className="truncate block" title={o.item?.title}>
+                                {o.item?.title}
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-bold text-brand-text-primary block">{o.buyer?.name}</span>
+                              {buyerPhoneClean && (
+                                <a
+                                  href={`https://wa.me/${buyerPhoneClean}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] text-emerald-600 hover:underline flex items-center gap-1 mt-0.5"
+                                >
+                                  <Icon name="WhatsappLogo" size={13} weight="fill" />
+                                  <span>{o.buyerPhone || o.buyer?.phone}</span>
+                                </a>
+                              )}
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-bold text-brand-text-primary block">{o.seller?.name}</span>
+                              {sellerPhoneClean && (
+                                <a
+                                  href={`https://wa.me/${sellerPhoneClean}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] text-emerald-600 hover:underline flex items-center gap-1 mt-0.5"
+                                >
+                                  <Icon name="WhatsappLogo" size={13} weight="fill" />
+                                  <span>{o.seller?.phone}</span>
+                                </a>
+                              )}
+                            </td>
+                            <td className="p-3.5 space-y-0.5">
+                              <div className="font-semibold text-brand-text-primary">
+                                {o.paymentMethod} &bull; {o.deliveryMethod}
+                              </div>
+                              {o.deliveryAddress && (
+                                <div className="text-[11px] text-brand-text-secondary truncate max-w-xs" title={o.deliveryAddress}>
+                                  Alamat: {o.deliveryAddress}
+                                </div>
+                              )}
+                              {o.deliveryDate && (
+                                <div className="text-[11px] text-brand-blue-700 font-medium">
+                                  Tgl Antar: {new Date(o.deliveryDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </div>
+                              )}
+                            </td>
+                            <td className="p-3.5">
+                              {o.paymentProofUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setAdminViewingProofUrl(o.paymentProofUrl!)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-brand-blue-50 text-brand-blue-700 hover:bg-brand-blue-100 border border-brand-blue-200 shadow-2xs transition-colors"
+                                >
+                                  <Icon name="FileText" size={14} />
+                                  <span>Lihat Bukti SS</span>
+                                </button>
+                              ) : o.paymentMethod === 'QRIS' && o.status === 'PENDING_PAYMENT' ? (
+                                <span className="inline-flex items-center text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                  Belum Unggah
+                                </span>
+                              ) : (
+                                <span className="text-brand-text-secondary text-xs">-</span>
+                              )}
+                            </td>
+                            <td className="p-3.5">
+                              <div className="font-bold text-brand-text-primary">
+                                {formatRupiah(o.buyerTotalRupiah)}
+                              </div>
+                              <div className="text-[11px] text-emerald-700 font-medium">
+                                Komisi: +{formatRupiah(o.commissionRupiah)}
+                              </div>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-bold text-[11px] bg-brand-surface px-2 py-1 rounded-md border border-brand-border">
+                                {o.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
@@ -390,6 +512,31 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
             </div>
           )}
         </>
+      )}
+
+      {/* Admin Payment Proof Viewer Modal */}
+      {adminViewingProofUrl && (
+        <Modal
+          isOpen={true}
+          onClose={() => setAdminViewingProofUrl(null)}
+          title="Verifikasi Bukti Transfer QRIS"
+          description="Screenshot struk transfer yang dikirim oleh pembeli."
+        >
+          <div className="py-2 space-y-4 text-center">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl p-2 overflow-hidden max-h-[70vh] flex items-center justify-center">
+              <img
+                src={adminViewingProofUrl}
+                alt="Bukti Transfer QRIS"
+                className="max-h-[65vh] w-auto mx-auto object-contain rounded-xl shadow-xs"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="primary" size="sm" onClick={() => setAdminViewingProofUrl(null)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
