@@ -10,6 +10,9 @@
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
+    "db:push": "prisma db push --skip-generate",
+    "db:bootstrap": "tsx prisma/bootstrap.ts",
+    "db:deploy": "prisma db push --skip-generate && tsx prisma/bootstrap.ts",
     "test": "tsx --test src/**/*.test.ts"
   },
   "prisma": {

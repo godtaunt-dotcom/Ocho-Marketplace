@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npm run build"
+  command = "npm install && npm run build && npm --prefix ocho/server run db:deploy"
   publish = "ocho/client/dist"
   functions = "netlify/functions"
 
@@ -7,13 +7,10 @@
   node_bundler = "esbuild"
   external_node_modules = ["@prisma/client", "prisma"]
   included_files = [
-    "api/seed.db",
-    "ocho/server/prisma/**",
+    "ocho/server/prisma/schema.prisma",
     "node_modules/.prisma/**",
     "node_modules/@prisma/client/**",
-    "node_modules/@prisma/engines/**",
-    "ocho/node_modules/.prisma/**",
-    "ocho/server/node_modules/.prisma/**"
+    "node_modules/@prisma/engines/**"
   ]
 
 [build.environment]

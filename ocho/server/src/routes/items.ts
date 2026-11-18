@@ -7,6 +7,56 @@ import { createSvgPlaceholder } from '../utils/placeholderImage';
 
 export const itemsRouter = Router();
 
+/**
+ * Photos are stored as data URIs in the database. Sending them inline in list responses
+ * makes pages very heavy, so list/detail responses expose a small cacheable URL instead.
+ */
+function toPhotoUrl<T extends { id: string; url: string }>(photo: T): T {
+  if (photo.url && photo.url.startsWith('data:')) {
+    return { ...photo, url: `/api/items/photo/${photo.id}` };
+  }
+  return photo;
+}
+
+function withLightPhotos<T extends { photos?: Array<{ id: string; url: string }> }>(item: T): T {
+  if (!item.photos) return item;
+  return { ...item, photos: item.photos.map(toPhotoUrl) };
+}
+
+/**
+ * GET /api/items/photo/:photoId
+ * Serves a stored photo as a real image with long-lived caching.
+ */
+itemsRouter.get('/photo/:photoId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const photo = await prisma.itemPhoto.findUnique({
+      where: { id: req.params.photoId },
+      select: { url: true },
+    });
+    if (!photo) {
+      res.status(404).end();
+      return;
+    }
+
+    const match = /^data:([^;,]+)((?:;[^;,]+)*),(.*)$/s.exec(photo.url);
+    if (!match) {
+      res.redirect(302, photo.url);
+      return;
+    }
+
+    const mime = match[1];
+    const isBase64 = match[2].includes('base64');
+    const payload = match[3];
+    const body = isBase64 ? Buffer.from(payload, 'base64') : Buffer.from(decodeURIComponent(payload), 'utf-8');
+
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.status(200).send(body);
+  } catch (err) {
+    next(err);
+  }
+});
+
 const listItemsQuerySchema = z.object({
   category: z.string().optional(),
   search: z.string().optional(),
@@ -55,8 +105,8 @@ itemsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => 
 
     if (query.search && query.search.trim()) {
       where.OR = [
-        { title: { contains: query.search.trim() } },
-        { description: { contains: query.search.trim() } },
+        { title: { contains: query.search.trim(), mode: 'insensitive' } },
+        { description: { contains: query.search.trim(), mode: 'insensitive' } },
       ];
     }
 
@@ -99,7 +149,7 @@ itemsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => 
     ]);
 
     res.json({
-      data: items,
+      data: items.map(withLightPhotos),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -148,7 +198,7 @@ itemsRouter.get('/my/listings', requireAuth, async (req: AuthenticatedRequest, r
     };
 
     res.json({
-      data: items,
+      data: items.map(withLightPhotos),
       meta: { counts },
     });
   } catch (err) {
@@ -200,7 +250,7 @@ itemsRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
 
     res.json({
       data: {
-        ...item,
+        ...withLightPhotos(item),
         seller: {
           ...item.seller,
           averageRating: avgRating,
