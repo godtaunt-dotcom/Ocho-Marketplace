@@ -1,11 +1,20 @@
 [build]
-  command = "npm --prefix ocho/server install && npm --prefix ocho/client install && npm run build"
+  command = "npm install && npm run build"
   publish = "ocho/client/dist"
   functions = "netlify/functions"
 
 [functions]
-  included_files = ["ocho/server/prisma/**", "api/seed.db"]
   node_bundler = "esbuild"
+  external_node_modules = ["@prisma/client", "prisma"]
+  included_files = [
+    "api/seed.db",
+    "ocho/server/prisma/**",
+    "node_modules/.prisma/**",
+    "node_modules/@prisma/client/**",
+    "node_modules/@prisma/engines/**",
+    "ocho/node_modules/.prisma/**",
+    "ocho/server/node_modules/.prisma/**"
+  ]
 
 [build.environment]
   NODE_VERSION = "20"

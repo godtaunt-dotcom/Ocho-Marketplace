@@ -15,8 +15,6 @@
     "start": "cd ocho/server && node dist/index.js"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "prisma": "^5.22.0",
     "serverless-http": "^4.0.0"
   }
 }
