@@ -14,6 +14,9 @@ async function main() {
   const ledger = await prisma.sellerBalanceEntry.deleteMany();
   console.log(`✓ SellerBalanceEntry dihapus: ${ledger.count}`);
 
+  const messages = await prisma.orderMessage.deleteMany();
+  console.log(`✓ OrderMessage dihapus: ${messages.count}`);
+
   const orders = await prisma.order.deleteMany();
   console.log(`✓ Order dihapus: ${orders.count}`);
 
