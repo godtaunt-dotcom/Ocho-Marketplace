@@ -1,6 +1,6 @@
 import React from 'react';
 import { Logo } from './Logo';
-import { ShieldCheck, Heart, MapPin, Mail, Layers } from 'lucide-react';
+import { Icon } from './Icon';
 
 export interface FooterProps {
   onShowcaseClick?: () => void;
@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
             di kawasan Jatinangor dan sekitarnya. Transaksi mudah dengan verifikasi identitas mahasiswa.
           </p>
           <div className="flex items-center gap-2 text-xs font-medium text-brand-blue-dark">
-            <MapPin className="w-4 h-4 text-brand-blue-500" />
+            <Icon name="MapPin" size={16} className="text-brand-blue-500" />
             <span>Jatinangor, Sumedang &bull; Dipati Ukur, Bandung</span>
           </div>
         </div>
@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
                   onClick={onShowcaseClick}
                   className="text-brand-purple hover:underline font-semibold flex items-center gap-1 text-[11px]"
                 >
-                  <Layers className="w-3.5 h-3.5" />
+                  <Icon name="Stack" size={16} />
                   <span>Lihat Desain Sistem &amp; Showcase</span>
                 </button>
               </li>
@@ -72,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
           <h4 className="font-semibold text-brand-text-primary text-sm mb-3">Keamanan &amp; Bantuan</h4>
           <ul className="space-y-2">
             <li className="flex items-center gap-1.5 text-brand-success-text font-medium">
-              <ShieldCheck className="w-4 h-4 text-brand-success" />
+              <Icon name="ShieldCheck" size={16} className="text-brand-success" />
               <span>Verifikasi KTM &amp; Email Unpad</span>
             </li>
             <li>
@@ -87,7 +87,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
             </li>
             <li>
               <a href="mailto:support@ocho.id" className="hover:text-brand-blue-600 transition-colors flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5" />
+                <Icon name="EnvelopeSimple" size={16} />
                 <span>support@ocho.id</span>
               </a>
             </li>
@@ -100,7 +100,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowcaseClick }) => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left text-xs text-brand-text-secondary">
           <p>
             &copy; {new Date().getFullYear()} Ocho Indonesia. Dibuat dengan{' '}
-            <Heart className="w-3 h-3 inline text-red-500 fill-red-500 mx-0.5" /> untuk mahasiswa Unpad.
+            <Icon name="Heart" size={16} weight="fill" className="inline text-red-500 mx-0.5" /> untuk mahasiswa Unpad.
           </p>
           <p className="text-[11px] text-brand-text-secondary/80 max-w-xl">
             <strong className="text-brand-text-primary">Disclaimer:</strong> Ocho adalah platform inisiatif

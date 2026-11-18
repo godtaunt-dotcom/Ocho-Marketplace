@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Logo } from './Logo';
 import { Button } from './Button';
-import { Search, PlusCircle, User, ShieldCheck, LogOut, Package, Wallet, ShieldAlert } from 'lucide-react';
+import { Icon } from './Icon';
 import { AuthUser } from '../../services/auth';
 
 export interface NavbarProps {
@@ -62,11 +62,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-brand-border select-none transition-all">
-      {/* Top Banner Notice */}
-      <div className="bg-[#f5f5f7] border-b border-brand-border/60 text-[#86868b] text-[11px] py-1.5 px-4 font-medium flex items-center justify-center gap-2">
-        <ShieldCheck className="w-3.5 h-3.5 text-brand-blue-600" />
-        <span>Eksklusif Mahasiswa Unpad (Jatinangor) &bull; Semua Pengguna Terverifikasi</span>
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-brand-border">
+      {/* Top Banner (Campus Verified Info) */}
+      <div className="bg-[#191c1f] text-white text-[11px] font-medium py-1 px-4 text-center select-none flex items-center justify-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Eksklusif Mahasiswa Unpad &bull; Jatinangor & Dipati Ukur</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
@@ -99,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="relative"
           >
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-text-secondary" />
+            <Icon name="MagnifyingGlass" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-text-secondary" />
             <input
               type="text"
               value={queryValue}
@@ -163,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={onAdminClick}
                   className="border-purple-300 text-purple-700 hover:bg-purple-50 text-xs px-2.5 py-1"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 mr-1" />
+                  <Icon name="ShieldWarning" size={16} className="mr-1" />
                   Admin
                 </Button>
               )}
@@ -176,7 +176,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
                 title="Pesanan Saya"
               >
-                <Package className="w-4 h-4 mr-1 text-brand-blue-600" />
+                <Icon name="Package" size={16} className="mr-1 text-brand-blue-600" />
                 <span className="hidden sm:inline">Pesanan</span>
               </Button>
 
@@ -188,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
                 title="Dompet & Saldo"
               >
-                <Wallet className="w-4 h-4 mr-1 text-emerald-600" />
+                <Icon name="Wallet" size={16} className="mr-1 text-emerald-600" />
                 <span className="hidden sm:inline">Dompet</span>
               </Button>
 
@@ -209,14 +209,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={onLogoutClick}
                 className="text-brand-text-secondary hover:text-red-600 p-1.5 rounded-full"
               >
-                <LogOut className="w-4 h-4" />
+                <Icon name="SignOut" size={16} ariaLabel="Keluar" />
               </Button>
             </div>
           ) : (
             <Button
               variant="ghost"
               size="md"
-              leftIcon={<User className="w-4 h-4" />}
+              leftIcon={<Icon name="User" size={16} />}
               onClick={onLoginClick}
             >
               Masuk
@@ -226,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Button
             variant="primary"
             size="md"
-            leftIcon={<PlusCircle className="w-4 h-4" />}
+            leftIcon={<Icon name="PlusCircle" size={16} />}
             onClick={onSellClick}
           >
             Jual Barang

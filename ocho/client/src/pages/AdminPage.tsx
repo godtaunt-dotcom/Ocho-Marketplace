@@ -14,12 +14,7 @@ import {
 import { formatRupiah, formatDateTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import {
-  Users,
-  DollarSign,
-  AlertTriangle,
-  CreditCard,
-} from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 
 interface AdminPageProps {
   onBackToHome: () => void;
@@ -145,9 +140,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                 <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-brand-text-secondary">
                     <span className="text-xs font-semibold">Total GMV Penjualan</span>
-                    <DollarSign className="w-5 h-5 text-emerald-600" />
+                    <Icon name="CurrencyDollar" size={20} className="text-emerald-600" />
                   </div>
-                  <p className="font-display font-black text-2xl text-emerald-800">
+                  <p className="font-display font-black text-2xl text-emerald-800 tabular-nums">
                     {formatRupiah(stats.totalGmvRupiah)}
                   </p>
                   <p className="text-[11px] text-brand-text-secondary">
@@ -158,9 +153,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                 <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-brand-text-secondary">
                     <span className="text-xs font-semibold">Komisi Platform Ocho (20%)</span>
-                    <CreditCard className="w-5 h-5 text-brand-blue-600" />
+                    <Icon name="CreditCard" size={20} className="text-brand-blue-600" />
                   </div>
-                  <p className="font-display font-black text-2xl text-brand-blue-600">
+                  <p className="font-display font-black text-2xl text-brand-blue-600 tabular-nums">
                     {formatRupiah(stats.totalCommissionEarnedRupiah)}
                   </p>
                   <p className="text-[11px] text-brand-text-secondary">
@@ -171,9 +166,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                 <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-brand-text-secondary">
                     <span className="text-xs font-semibold">Mahasiswa Terdaftar</span>
-                    <Users className="w-5 h-5 text-purple-600" />
+                    <Icon name="Users" size={20} className="text-purple-600" />
                   </div>
-                  <p className="font-display font-black text-2xl text-purple-900">
+                  <p className="font-display font-black text-2xl text-purple-900 tabular-nums">
                     {stats.totalUsers}
                   </p>
                   <p className="text-[11px] text-brand-text-secondary">
@@ -184,9 +179,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
                 <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-brand-text-secondary">
                     <span className="text-xs font-semibold">Perlu Tindakan Admin</span>
-                    <AlertTriangle className="w-5 h-5 text-amber-500" />
+                    <Icon name="Warning" size={20} className="text-amber-500" />
                   </div>
-                  <p className="font-display font-black text-2xl text-amber-600">
+                  <p className="font-display font-black text-2xl text-amber-600 tabular-nums">
                     {stats.pendingReportsCount + stats.pendingPayoutsCount}
                   </p>
                   <p className="text-[11px] text-brand-text-secondary">

@@ -8,18 +8,7 @@ import {
 import { ProductCard } from '../components/ui/ProductCard';
 import { ProductCardSkeleton } from '../components/ui/ProductCardSkeleton';
 import { Button } from '../components/ui/Button';
-import {
-  ShieldCheck,
-  Search,
-  ArrowUpDown,
-  Sparkles,
-  Package,
-  RotateCcw,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Truck,
-} from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 
 export interface HomePageProps {
   onSelectItem: (itemId: string) => void;
@@ -156,7 +145,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Header Title */}
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-orange-light text-brand-orange-dark border border-brand-orange/20 text-xs font-bold uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4 text-brand-orange" />
+              <Icon name="ShieldCheck" size={16} className="text-brand-orange" />
               <span>Khusus Mahasiswa Unpad Jatinangor</span>
             </div>
 
@@ -176,7 +165,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="flex items-center justify-between pb-5 border-b border-brand-border/60">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-brand-blue-50 text-brand-blue-600 flex items-center justify-center font-bold">
-                  <Sparkles className="w-4 h-4" />
+                  <Icon name="Sparkle" size={16} />
                 </div>
                 <div>
                   <h2 className="font-display font-bold text-base text-brand-text-primary">
@@ -295,7 +284,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
             {/* Quick search input within toolbar */}
             <div className="relative min-w-[200px] max-w-xs flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary" />
+              <Icon name="MagnifyingGlass" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary" />
               <input
                 type="text"
                 value={searchQuery}
@@ -353,7 +342,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onClick={handleResetFilters}
                 className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue-600 hover:text-brand-blue-800 transition-colors cursor-pointer py-1 px-2 rounded hover:bg-brand-blue-50"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <Icon name="ArrowCounterClockwise" size={16} />
                 <span>Reset Filter ({activeFiltersCount})</span>
               </button>
             )}
@@ -362,7 +351,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Right Sort: Sort Order */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-brand-text-secondary font-medium flex items-center gap-1">
-              <ArrowUpDown className="w-3.5 h-3.5" />
+              <Icon name="ArrowsDownUp" size={16} />
               <span>Urutkan:</span>
             </span>
             <select
@@ -428,7 +417,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         {!loading && !error && itemsData && itemsData.data.length === 0 && (
           <div className="bg-white border border-brand-border rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4">
             <div className="w-16 h-16 rounded-full bg-brand-surface text-brand-text-secondary flex items-center justify-center mx-auto">
-              <Package className="w-8 h-8 opacity-40" />
+              <Icon name="Package" size={24} className="opacity-40" />
             </div>
             <div className="space-y-1">
               <h3 className="font-display font-bold text-lg text-brand-text-primary">
@@ -465,7 +454,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               size="sm"
               disabled={page <= 1}
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              leftIcon={<ChevronLeft className="w-4 h-4" />}
+              leftIcon={<Icon name="CaretLeft" size={16} />}
             >
               Sebelumnya
             </Button>
@@ -479,7 +468,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               size="sm"
               disabled={page >= itemsData.meta.totalPages}
               onClick={() => setPage((prev) => prev + 1)}
-              rightIcon={<ChevronRight className="w-4 h-4" />}
+              rightIcon={<Icon name="CaretRight" size={16} />}
             >
               Selanjutnya
             </Button>
@@ -492,7 +481,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white border border-brand-border flex items-center justify-center text-brand-blue-600 shadow-xs shrink-0">
-              <MapPin className="w-6 h-6" />
+              <Icon name="MapPin" size={24} />
             </div>
             <div className="space-y-1">
               <h4 className="font-display font-bold text-sm text-brand-text-primary">
@@ -506,7 +495,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div className="flex items-center gap-3 shrink-0">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-blue-700 bg-brand-blue-50 px-3 py-1.5 rounded-xl border border-brand-blue-200">
-              <Truck className="w-4 h-4" />
+              <Icon name="Truck" size={16} />
               <span>Ongkir Flat Rp 3.000 via Tim Ocho</span>
             </span>
           </div>

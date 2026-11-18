@@ -5,21 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { Card } from '../components/ui/Card';
-import {
-  ArrowLeft,
-  ShieldCheck,
-  MapPin,
-  Truck,
-  Package,
-  QrCode,
-  Banknote,
-  Star,
-  AlertTriangle,
-  Flag,
-  CheckCircle2,
-  Clock,
-  Info,
-} from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 
 export interface ItemDetailPageProps {
   itemId: string;
@@ -138,7 +124,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
     return (
       <div className="max-w-xl mx-auto px-6 py-20 text-center space-y-5">
         <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
-          <AlertTriangle className="w-8 h-8" />
+          <Icon name="Warning" size={24} />
         </div>
         <div className="space-y-1">
           <h2 className="font-display font-bold text-xl text-brand-text-primary">
@@ -148,7 +134,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
             {error || 'Barang yang Anda cari mungkin telah dihapus atau tidak tersedia.'}
           </p>
         </div>
-        <Button variant="primary" onClick={onBack} leftIcon={<ArrowLeft className="w-4 h-4" />}>
+        <Button variant="primary" onClick={onBack} leftIcon={<Icon name="ArrowLeft" size={16} />}>
           Kembali ke Beranda
         </Button>
       </div>
@@ -181,7 +167,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           onClick={onBack}
           className="inline-flex items-center gap-1.5 font-semibold text-brand-blue-600 hover:text-brand-blue-800 transition-colors cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <Icon name="ArrowLeft" size={16} />
           <span>Kembali</span>
         </button>
         <span>/</span>
@@ -309,7 +295,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           {item.pickupLocation && (
             <div className="bg-brand-surface border border-brand-border rounded-2xl p-5 flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-white border border-brand-border flex items-center justify-center text-brand-blue-600 shrink-0 shadow-2xs">
-                <MapPin className="w-5 h-5" />
+                <Icon name="MapPin" size={20} />
               </div>
               <div className="space-y-1">
                 <h4 className="font-display font-bold text-sm text-brand-text-primary">
@@ -328,7 +314,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           {/* 5. Safe Trading Notice & Report Button */}
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 text-xs text-brand-text-secondary">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
               <span>Semua akun penjual terverifikasi mahasiswa Unpad.</span>
             </div>
 
@@ -337,7 +323,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
               onClick={() => setIsReportModalOpen(true)}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-red-50 transition-colors"
             >
-              <Flag className="w-3.5 h-3.5" />
+              <Icon name="Flag" size={16} />
               <span>Laporkan Barang</span>
             </button>
           </div>
@@ -376,7 +362,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                       </span>
                       {item.seller.isVerified && (
                         <span title="Mahasiswa Terverifikasi">
-                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
                         </span>
                       )}
                     </div>
@@ -394,15 +380,15 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
               {/* Rating & Reviews summary */}
               <div className="flex items-center justify-between text-xs pt-2 border-t border-brand-border/40 text-brand-text-secondary">
                 <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  <span className="font-bold text-brand-text-primary">
+                  <Icon name="Star" size={16} weight="fill" className="text-amber-500" />
+                  <span className="font-bold text-brand-text-primary tabular-nums">
                     {item.seller.averageRating ? item.seller.averageRating.toFixed(1) : '5.0'}
                   </span>
                   <span>({item.seller.reviewCount || 1} ulasan selesai)</span>
                 </div>
 
                 <div className="flex items-center gap-1 text-[11px]">
-                  <Clock className="w-3.5 h-3.5 text-brand-blue-500" />
+                  <Icon name="Clock" size={16} className="text-brand-blue-500" />
                   <span>Respon Cepat</span>
                 </div>
               </div>
@@ -426,7 +412,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <Package className="w-4 h-4 text-brand-blue-600" />
+                    <Icon name="Package" size={16} className="text-brand-blue-600" />
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
                       Gratis
                     </span>
@@ -455,7 +441,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <Truck className="w-4 h-4 text-brand-blue-600" />
+                    <Icon name="Truck" size={16} className="text-brand-blue-600" />
                     <span className="text-[10px] font-bold text-brand-orange-dark bg-brand-orange-light px-1.5 py-0.2 rounded">
                       {isFirstOrder ? 'Free Order #1' : formatRupiah(standardDeliveryFee)}
                     </span>
@@ -489,7 +475,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                       : 'border-brand-border hover:border-brand-blue-300 bg-white'
                   }`}
                 >
-                  <QrCode className="w-5 h-5 text-brand-blue-600 shrink-0" />
+                  <Icon name="QrCode" size={20} className="text-brand-blue-600 shrink-0" />
                   <div>
                     <span className="font-display font-bold text-xs text-brand-text-primary block">
                       QRIS Instan
@@ -514,7 +500,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   }`}
                   title={deliveryMethod === 'PICKUP' ? 'COD hanya tersedia jika diantar tim Ocho' : ''}
                 >
-                  <Banknote className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <Icon name="Money" size={20} className="text-emerald-600 shrink-0" />
                   <div>
                     <span className="font-display font-bold text-xs text-brand-text-primary block">
                       COD (Tunai)
@@ -572,7 +558,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
             {/* Transparent Commission Notice (20% borne by seller) */}
             <div className="bg-brand-blue-50/70 border border-brand-blue-100 rounded-xl p-3 flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-brand-blue-600 shrink-0 mt-0.5" />
+              <Icon name="Info" size={16} className="text-brand-blue-600 shrink-0 mt-0.5" />
               <div className="text-[11px] text-brand-blue-900 leading-snug">
                 <span className="font-bold">Transparansi Ocho:</span> Komisi platform 20% ({formatRupiah(commissionRupiah)}) sepenuhnya ditanggung penjual dari hasil penjualan. Penjual menerima {formatRupiah(sellerPayoutRupiah)}. Pembeli tidak dibebani biaya admin tambahan!
               </div>
@@ -618,7 +604,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
       >
         {reportSubmitted ? (
           <div className="py-8 text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+            <Icon name="CheckCircle" size={24} weight="fill" className="text-emerald-600 mx-auto" />
             <h4 className="font-display font-bold text-base text-brand-text-primary">
               Laporan Berhasil Dikirim
             </h4>

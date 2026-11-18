@@ -3,7 +3,7 @@ import { ItemSummary } from '../../services/api';
 import { formatRupiah, formatRelativeTime } from '../../utils/format';
 import { Badge } from './Badge';
 import { Card, CardContent } from './Card';
-import { MapPin, ShieldCheck, Truck, Package } from 'lucide-react';
+import { Icon } from './Icon';
 
 export interface ProductCardProps {
   item: ItemSummary;
@@ -50,12 +50,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         <div className="absolute top-2.5 right-2.5 z-10">
           {isPickupOnly ? (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-amber-500/90 text-white px-2 py-0.5 rounded-md shadow-xs backdrop-blur-xs">
-              <Package className="w-3 h-3" />
+              <Icon name="Package" size={16} />
               <span>Khusus Pickup</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-brand-blue-600/90 text-white px-2 py-0.5 rounded-md shadow-xs backdrop-blur-xs">
-              <Truck className="w-3 h-3" />
+              <Icon name="Truck" size={16} />
               <span>Bisa Antar</span>
             </span>
           )}
@@ -101,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
           <div className="flex items-baseline justify-between">
             <div>
               <span className="text-[10px] text-brand-text-secondary block">Harga Pas</span>
-              <p className="font-display text-lg font-black text-brand-orange leading-none">
+              <p className="font-display text-lg font-black text-brand-orange leading-none tabular-nums">
                 {formatRupiah(item.priceRupiah)}
               </p>
             </div>
@@ -111,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
                 className="text-[11px] text-brand-text-secondary flex items-center gap-1 max-w-[130px] truncate"
                 title={item.pickupLocation}
               >
-                <MapPin className="w-3.5 h-3.5 text-brand-blue-500 shrink-0" />
+                <Icon name="MapPin" size={16} className="text-brand-blue-500 shrink-0" />
                 <span className="truncate">{item.pickupLocation}</span>
               </span>
             )}
@@ -128,7 +128,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
 
             {item.seller.isVerified && (
               <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded shrink-0 border border-emerald-200">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
                 <span>Terverifikasi</span>
               </span>
             )}

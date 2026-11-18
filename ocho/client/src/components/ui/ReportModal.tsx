@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
+import { Icon } from './Icon';
 import { submitReport } from '../../services/api';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       {success ? (
         <div className="py-8 text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-            <CheckCircle2 className="w-6 h-6" />
+            <Icon name="CheckCircle" size={24} weight="fill" />
           </div>
           <h4 className="font-display font-bold text-sm text-brand-text-primary">
             Laporan Berhasil Terkirim
@@ -69,7 +69,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
@@ -101,19 +101,31 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             <textarea
               required
               rows={3}
-              placeholder="Jelaskan alasan laporanmu secara singkat dan jelas..."
+              placeholder="Jelaskan alasan kecurigaan atau pelanggaran..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-brand-border">
-            <Button variant="ghost" size="sm" type="button" onClick={onClose}>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+              disabled={loading}
+            >
               Batal
             </Button>
-            <Button variant="danger" size="sm" type="submit" disabled={loading}>
-              {loading ? 'Mengirim...' : 'Kirim Laporan'}
+            <Button
+              type="submit"
+              variant="danger"
+              size="sm"
+              disabled={loading}
+              isLoading={loading}
+            >
+              Kirim Laporan
             </Button>
           </div>
         </form>

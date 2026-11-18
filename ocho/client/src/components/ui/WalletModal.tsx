@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { RupiahInput } from './Input';
+import { Icon } from './Icon';
 import { BalanceData, fetchSellerBalance, requestPayout } from '../../services/api';
 import { formatRupiah, formatDateTime } from '../../utils/format';
-import { Wallet, ArrowDownRight, ArrowUpRight, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -79,14 +79,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
       <div className="space-y-4 py-2">
         {success && (
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+            <Icon name="CheckCircle" size={16} weight="fill" className="shrink-0 mt-0.5 text-emerald-600" />
             <span>{success}</span>
           </div>
         )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
@@ -95,9 +95,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
         <div className="bg-gradient-to-br from-brand-blue-700 to-brand-purple text-white p-5 rounded-2xl shadow-card space-y-2">
           <div className="flex items-center justify-between text-brand-blue-100 text-xs">
             <span>Saldo Aktif Siap Ditarik</span>
-            <Wallet className="w-4 h-4" />
+            <Icon name="Wallet" size={16} />
           </div>
-          <p className="font-display font-black text-3xl">
+          <p className="font-display font-black text-3xl tabular-nums">
             {formatRupiah(data?.currentBalanceRupiah || 0)}
           </p>
           <div className="pt-2 flex justify-between items-center text-[11px] text-brand-blue-200 border-t border-white/20">
@@ -215,7 +215,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                           isCredit ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
                         }`}
                       >
-                        {isCredit ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                        {isCredit ? <Icon name="ArrowDownRight" size={16} /> : <Icon name="ArrowUpRight" size={16} />}
                       </div>
                       <div className="space-y-0.5">
                         <p className="font-semibold text-brand-text-primary line-clamp-1">{entry.description}</p>
@@ -223,10 +223,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className={`font-bold ${isCredit ? 'text-emerald-700' : 'text-red-600'}`}>
+                      <p className={`font-bold tabular-nums ${isCredit ? 'text-emerald-700' : 'text-red-600'}`}>
                         {isCredit ? '+' : '-'}{formatRupiah(entry.amountRupiah)}
                       </p>
-                      <p className="text-[10px] text-brand-text-secondary">
+                      <p className="text-[10px] text-brand-text-secondary tabular-nums">
                         Sisa: {formatRupiah(entry.balanceAfterRupiah)}
                       </p>
                     </div>

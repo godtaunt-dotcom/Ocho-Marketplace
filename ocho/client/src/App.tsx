@@ -23,15 +23,7 @@ import {
   fetchCurrentProfile,
   clearAuthSession,
 } from './services/auth';
-import {
-  CheckCircle2,
-  Sparkles,
-  QrCode,
-  AlertCircle,
-  Truck,
-  Phone,
-  FileText,
-} from 'lucide-react';
+import { Icon } from './components/ui/Icon';
 
 type RouteState =
   | { name: 'home' }
@@ -287,7 +279,7 @@ export const App: React.FC = () => {
             <section className="bg-gradient-to-r from-brand-blue-600 via-brand-purple to-brand-blue-700 rounded-3xl p-8 text-white shadow-soft relative overflow-hidden">
               <div className="relative z-10 max-w-3xl space-y-4">
                 <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-semibold text-brand-blue-100 border border-white/20">
-                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <Icon name="Sparkle" size={16} className="text-amber-300" />
                   <span>Sistem &amp; Arsitektur Ocho Unpad</span>
                 </div>
                 <h1 className="font-display text-3xl md:text-4xl font-black tracking-tight leading-tight">
@@ -403,7 +395,7 @@ export const App: React.FC = () => {
         <div className="space-y-4 py-2">
           {authError && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
               <span>{authError}</span>
             </div>
           )}
@@ -550,7 +542,7 @@ export const App: React.FC = () => {
           {createdOrderResult ? (
             <div className="py-4 text-center space-y-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-                <CheckCircle2 className="w-7 h-7" />
+                <Icon name="CheckCircle" size={24} weight="fill" />
               </div>
 
               {createdOrderResult.paymentMethod === 'QRIS' ? (
@@ -565,7 +557,7 @@ export const App: React.FC = () => {
                   </div>
 
                   <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
-                    <QrCode className="w-40 h-40 mx-auto text-brand-text-primary" />
+                    <Icon name="QrCode" size={160} className="mx-auto text-brand-text-primary" />
                     <p className="text-xs font-mono font-bold text-brand-blue-700">
                       Total: {formatRupiah(createdOrderResult.buyerTotalRupiah)}
                     </p>
@@ -641,7 +633,7 @@ export const App: React.FC = () => {
               {checkoutModalItem.deliveryMethod === 'DELIVERY' && (
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <Icon name="Truck" size={16} className="text-brand-blue-600" />
                     <span>Alamat Pengantaran (Nama Kos / Gedung) *</span>
                   </label>
                   <input
@@ -658,7 +650,7 @@ export const App: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                    <Phone className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <Icon name="Phone" size={16} className="text-brand-blue-600" />
                     <span>No. WhatsApp Pembeli *</span>
                   </label>
                   <input
@@ -673,7 +665,7 @@ export const App: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                    <FileText className="w-3.5 h-3.5 text-brand-blue-600" />
+                    <Icon name="FileText" size={16} className="text-brand-blue-600" />
                     <span>Catatan untuk Penjual / Kurir</span>
                   </label>
                   <input

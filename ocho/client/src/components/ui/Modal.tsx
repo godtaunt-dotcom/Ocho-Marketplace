@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Icon } from './Icon';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -77,7 +77,7 @@ export const Modal: React.FC<ModalProps> = ({
             className="p-1.5 rounded-lg text-brand-text-secondary hover:text-brand-text-primary hover:bg-gray-100 transition-colors"
             aria-label="Tutup"
           >
-            <X className="w-5 h-5" />
+            <Icon name="X" size={20} ariaHidden />
           </button>
         </div>
 

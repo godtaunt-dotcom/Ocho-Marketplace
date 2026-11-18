@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { RupiahInput } from './Input';
 import { Category, fetchCategories, createItem } from '../../services/api';
 import { formatRupiah } from '../../utils/format';
-import { Upload, X, AlertCircle } from 'lucide-react';
+import { Icon } from './Icon';
 
 interface SellModalProps {
   isOpen: boolean;
@@ -161,7 +161,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
       <form onSubmit={handleSubmit} className="space-y-4 py-1 max-h-[75vh] overflow-y-auto px-1">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
@@ -179,8 +179,9 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
                   type="button"
                   onClick={() => removePhoto(idx)}
                   className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-80 hover:opacity-100"
+                  aria-label="Hapus foto"
                 >
-                  <X className="w-3 h-3" />
+                  <Icon name="X" size={16} ariaHidden />
                 </button>
                 {idx === 0 && (
                   <span className="absolute bottom-1 left-1 bg-brand-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
@@ -192,7 +193,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
 
             {photos.length < 6 && (
               <label className="border-2 border-dashed border-brand-border rounded-xl aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue-500 hover:bg-brand-blue-50/50 transition-colors">
-                <Upload className="w-5 h-5 text-brand-text-secondary mb-1" />
+                <Icon name="UploadSimple" size={20} className="text-brand-text-secondary mb-1" />
                 <span className="text-[10px] text-brand-text-secondary font-medium">Unggah</span>
                 <input
                   type="file"

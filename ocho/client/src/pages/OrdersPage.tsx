@@ -11,15 +11,7 @@ import { formatRupiah, formatDateTime } from '../utils/format';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
-import {
-  Package,
-  QrCode,
-  CheckCircle2,
-  Clock,
-  Truck,
-  Star,
-  AlertCircle,
-} from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 
 interface OrdersPageProps {
   onBackToHome: () => void;
@@ -187,7 +179,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         </div>
       ) : error ? (
         <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-2xl text-center space-y-2">
-          <AlertCircle className="w-8 h-8 mx-auto text-red-500" />
+          <Icon name="WarningCircle" size={24} className="mx-auto text-red-500" />
           <p className="text-sm font-bold">{error}</p>
           <Button variant="outline" size="sm" onClick={loadOrders}>
             Coba Lagi
@@ -196,7 +188,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-3xl border border-brand-border p-12 text-center space-y-3 shadow-card">
           <div className="w-16 h-16 rounded-full bg-brand-surface text-brand-text-secondary flex items-center justify-center mx-auto border border-brand-border">
-            <Package className="w-8 h-8" />
+            <Icon name="Package" size={24} />
           </div>
           <h3 className="font-display font-bold text-base text-brand-text-primary">
             Belum Ada Pesanan {roleTab === 'buyer' ? 'Pembelian' : 'Penjualan'}
@@ -262,7 +254,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                   </p>
                   {order.deliveryAddress && (
                     <p className="text-xs text-brand-text-secondary flex items-center gap-1">
-                      <Truck className="w-3.5 h-3.5 text-brand-blue-600 shrink-0" />
+                      <Icon name="Truck" size={16} className="text-brand-blue-600 shrink-0" />
                       <span className="truncate">Antar ke: {order.deliveryAddress}</span>
                     </p>
                   )}
@@ -270,7 +262,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
 
                 <div className="text-right shrink-0">
                   <p className="text-[11px] text-brand-text-secondary">Total Transaksi</p>
-                  <p className="font-display font-black text-brand-orange text-sm sm:text-base">
+                  <p className="font-display font-black text-brand-orange text-sm sm:text-base tabular-nums">
                     {formatRupiah(roleTab === 'buyer' ? order.buyerTotalRupiah : order.sellerPayoutRupiah)}
                   </p>
                   {roleTab === 'seller' && (
@@ -286,13 +278,13 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                 <div className="text-brand-text-secondary">
                   {order.status === 'PENDING_PAYMENT' && order.reservedUntil && (
                     <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
+                      <Icon name="Clock" size={16} className="text-amber-600" />
                       <span>Selesaikan bayar sebelum {new Date(order.reservedUntil).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                     </span>
                   )}
                   {order.status === 'COMPLETED' && order.review && (
                     <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <Icon name="Star" size={16} weight="fill" className="text-amber-400" />
                       <span>Ulasan {order.review.rating}/5: &ldquo;{order.review.comment}&rdquo;</span>
                     </span>
                   )}
@@ -306,7 +298,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                       size="sm"
                       onClick={() => setSelectedPaymentOrder(order)}
                     >
-                      <QrCode className="w-3.5 h-3.5 mr-1" />
+                      <Icon name="QrCode" size={16} className="mr-1" />
                       Bayar QRIS
                     </Button>
                   )}
@@ -318,7 +310,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                       size="sm"
                       onClick={() => handleConfirmReceived(order.id)}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                      <Icon name="CheckCircle" size={16} weight="fill" className="mr-1" />
                       Barang Sudah Diterima
                     </Button>
                   )}
@@ -334,7 +326,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                         setReviewComment('');
                       }}
                     >
-                      <Star className="w-3.5 h-3.5 mr-1" />
+                      <Icon name="Star" size={16} className="mr-1" />
                       Beri Ulasan Penjual
                     </Button>
                   )}
@@ -395,7 +387,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         >
           <div className="py-4 text-center space-y-4">
             <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2">
-              <QrCode className="w-48 h-48 mx-auto text-brand-text-primary" />
+              <Icon name="QrCode" size={192} className="mx-auto text-brand-text-primary" />
               <p className="text-xs font-mono font-bold text-brand-blue-700">
                 NMID: ID1020261023OCHO
               </p>
@@ -403,7 +395,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
 
             <div className="space-y-1">
               <p className="text-xs text-brand-text-secondary">Total Tagihan:</p>
-              <p className="font-display font-black text-2xl text-brand-orange">
+              <p className="font-display font-black text-2xl text-brand-orange tabular-nums">
                 {formatRupiah(selectedPaymentOrder.buyerTotalRupiah)}
               </p>
               <p className="text-[11px] text-brand-text-secondary">
@@ -412,7 +404,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
             </div>
 
             <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] p-3 rounded-xl flex items-start gap-2">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <Icon name="Clock" size={16} className="text-amber-600 shrink-0 mt-0.5" />
               <span>
                 Mode Sandbox Testing: Klik tombol di bawah untuk menyimulasikan notifikasi sukses dari payment gateway secara instan.
               </span>
@@ -456,12 +448,15 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                     onClick={() => setReviewRating(star)}
                     className="p-1 hover:scale-110 transition-transform"
                   >
-                    <Star
-                      className={`w-8 h-8 ${
+                    <Icon
+                      name="Star"
+                      size={24}
+                      weight={star <= reviewRating ? 'fill' : 'regular'}
+                      className={
                         star <= reviewRating
-                          ? 'fill-amber-400 text-amber-400'
+                          ? 'text-amber-400'
                           : 'text-gray-300'
-                      }`}
+                      }
                     />
                   </button>
                 ))}

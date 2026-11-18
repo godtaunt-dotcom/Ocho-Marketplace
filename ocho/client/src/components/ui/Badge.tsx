@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { Icon } from './Icon';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: 'default' | 'verified' | 'warning' | 'category' | 'sold' | 'info' | 'coming-soon';
@@ -33,8 +33,8 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span className={`${baseClasses} ${variantClasses} ${sizeClasses} ${className}`} {...props}>
-      {variant === 'verified' && <CheckCircle2 className="w-3.5 h-3.5 text-brand-success-text" />}
-      {variant === 'warning' && <AlertCircle className="w-3.5 h-3.5 text-brand-warning-text" />}
+      {variant === 'verified' && <Icon name="CheckCircle" size={16} weight="fill" className="text-brand-success-text" />}
+      {variant === 'warning' && <Icon name="WarningCircle" size={16} className="text-brand-warning-text" />}
       {children}
     </span>
   );
