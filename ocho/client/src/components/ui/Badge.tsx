@@ -22,13 +22,13 @@ export const Badge: React.FC<BadgeProps> = ({
   }[size];
 
   const variantClasses = {
-    default: 'bg-gray-100 text-brand-text-secondary border border-gray-200',
-    verified: 'bg-brand-success-bg text-brand-success-text border border-emerald-200',
-    warning: 'bg-brand-warning-bg text-brand-warning-text border border-amber-200',
-    category: 'bg-brand-blue-tint text-brand-blue-dark border border-brand-blue-100',
-    sold: 'bg-gray-200 text-gray-700 border border-gray-300',
-    info: 'bg-blue-50 text-brand-blue-dark border border-blue-200',
-    'coming-soon': 'bg-purple-50 text-brand-purple border border-purple-200',
+    default: 'bg-gray-100 dark:bg-slate-800 text-brand-text-secondary dark:text-slate-300 border border-gray-200 dark:border-slate-700',
+    verified: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800',
+    warning: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800',
+    category: 'bg-brand-blue-50 dark:bg-brand-blue-950/70 text-brand-blue-700 dark:text-brand-blue-300 border border-brand-blue-200 dark:border-brand-blue-800',
+    sold: 'bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-700',
+    info: 'bg-blue-50 dark:bg-blue-950/60 text-brand-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
+    'coming-soon': 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
   }[variant];
 
   return (

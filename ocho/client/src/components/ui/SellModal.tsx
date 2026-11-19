@@ -168,12 +168,12 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* 1. Photo Uploader */}
         <div>
-          <label className="block text-xs font-bold text-brand-text-primary mb-1.5">
+          <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1.5">
             Foto Barang (Maks. 6 Foto)
           </label>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
             {photos.map((url, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-brand-border group">
+              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-brand-border dark:border-slate-700 group">
                 <img src={url} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -192,9 +192,9 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
             ))}
 
             {photos.length < 6 && (
-              <label className="border-2 border-dashed border-brand-border rounded-xl aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue-500 hover:bg-brand-blue-50/50 transition-colors">
-                <Icon name="UploadSimple" size={20} className="text-brand-text-secondary mb-1" />
-                <span className="text-[10px] text-brand-text-secondary font-medium">Unggah</span>
+              <label className="border-2 border-dashed border-brand-border dark:border-slate-700 rounded-xl aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue-500 hover:bg-brand-blue-50/50 dark:hover:bg-slate-800/60 transition-colors">
+                <Icon name="UploadSimple" size={20} className="text-brand-text-secondary dark:text-slate-400 mb-1" />
+                <span className="text-[10px] text-brand-text-secondary dark:text-slate-400 font-medium">Unggah</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -210,7 +210,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
         {/* 2. Title & Category */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-brand-text-primary mb-1">
+            <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
               Judul Barang <span className="text-red-500">*</span>
             </label>
             <input
@@ -219,18 +219,18 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
               placeholder="Contoh: Kipas Angin Miyako KAS-1618B"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-brand-text-primary mb-1">
+            <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
               Kategori <span className="text-red-500">*</span>
             </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id} disabled={c.isForbidden}>
@@ -243,7 +243,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* 3. Condition & Size/Brand */}
         <div>
-          <label className="block text-xs font-bold text-brand-text-primary mb-1.5">
+          <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1.5">
             Kondisi Barang <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -259,12 +259,12 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
                 onClick={() => setCondition(c.val as any)}
                 className={`p-2 rounded-xl text-left border transition-all ${
                   condition === c.val
-                    ? 'border-brand-blue-600 bg-brand-blue-50/50 text-brand-blue-900'
-                    : 'border-brand-border bg-white text-brand-text-secondary hover:border-gray-300'
+                    ? 'border-brand-blue-600 dark:border-brand-blue-500 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 text-brand-blue-900 dark:text-brand-blue-200'
+                    : 'border-brand-border dark:border-slate-700 bg-white dark:bg-slate-800/80 text-brand-text-secondary dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600'
                 }`}
               >
                 <p className="text-xs font-bold">{c.label}</p>
-                <p className="text-[10px] text-brand-text-secondary">{c.desc}</p>
+                <p className="text-[10px] text-brand-text-secondary dark:text-slate-400">{c.desc}</p>
               </button>
             ))}
           </div>
@@ -273,7 +273,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
         {/* Size (Mandatory if Fashion) & Brand */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-brand-text-primary mb-1">
+            <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
               Ukuran {selectedCategory?.requiresSize && <span className="text-red-500">*(Wajib untuk Fashion)</span>}
             </label>
             <input
@@ -281,12 +281,12 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
               placeholder="Contoh: L, XL, atau 42"
               value={size}
               onChange={(e) => setSize(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-brand-text-primary mb-1">
+            <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
               Merek / Brand (Opsional)
             </label>
             <input
@@ -294,14 +294,14 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
               placeholder="Contoh: Uniqlo, Miyako, Casio"
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
             />
           </div>
         </div>
 
         {/* 4. Description */}
         <div>
-          <label className="block text-xs font-bold text-brand-text-primary mb-1">
+          <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
             Deskripsi Barang <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -310,12 +310,12 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
             placeholder="Jelaskan kondisi kelengkapan barang, alasan jual, lama pemakaian..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none resize-none"
+            className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none resize-none"
           />
         </div>
 
         {/* 5. Price & Financial Breakdown (Transparent Commission) */}
-        <div className="bg-brand-surface p-3.5 rounded-2xl border border-brand-border space-y-3">
+        <div className="bg-brand-surface dark:bg-slate-800/50 p-3.5 rounded-2xl border border-brand-border dark:border-slate-700/80 space-y-3">
           <RupiahInput
             label="Harga Jual Barang"
             value={priceRupiah}
@@ -323,16 +323,16 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
             helperText="Harga yang akan dilihat dan dibayar oleh pembeli."
           />
 
-          <div className="bg-white p-3 rounded-xl border border-brand-border/80 space-y-2 text-xs">
-            <div className="flex justify-between text-brand-text-secondary">
+          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-brand-border/80 dark:border-slate-700 space-y-2 text-xs">
+            <div className="flex justify-between text-brand-text-secondary dark:text-slate-400">
               <span>Komisi Platform Ocho (20%):</span>
-              <span className="font-bold text-red-600">- {formatRupiah(commission)}</span>
+              <span className="font-bold text-red-600 dark:text-red-400">- {formatRupiah(commission)}</span>
             </div>
-            <div className="border-t border-brand-border pt-2 flex justify-between font-bold text-emerald-800 bg-emerald-50 p-2 rounded-lg">
+            <div className="border-t border-brand-border dark:border-slate-700 pt-2 flex justify-between font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg">
               <span>Uang yang Kamu Terima:</span>
               <span className="text-sm font-black">{formatRupiah(sellerPayout)}</span>
             </div>
-            <p className="text-[10px] text-brand-text-secondary leading-tight">
+            <p className="text-[10px] text-brand-text-secondary dark:text-slate-400 leading-tight">
               Komisi dipotong otomatis saat barang laku dan pembeli menyelesaikan pesanan. Bebas biaya penarikan ke rekening bank/e-wallet.
             </p>
           </div>
@@ -340,7 +340,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* 6. Delivery Options */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-brand-text-primary">
+          <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200">
             Opsi Pengambilan Barang
           </label>
           <div className="flex gap-2">
@@ -350,8 +350,8 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
               disabled={selectedCategory?.allowedDelivery === 'PICKUP_ONLY'}
               className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl border text-center transition-all ${
                 deliveryMethod === 'PICKUP_OR_DELIVERY'
-                  ? 'border-brand-blue-600 bg-brand-blue-50/50 text-brand-blue-900'
-                  : 'border-brand-border bg-white text-brand-text-secondary'
+                  ? 'border-brand-blue-600 dark:border-brand-blue-500 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 text-brand-blue-900 dark:text-brand-blue-200'
+                  : 'border-brand-border dark:border-slate-700 bg-white dark:bg-slate-800 text-brand-text-secondary dark:text-slate-300'
               } ${selectedCategory?.allowedDelivery === 'PICKUP_ONLY' ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
               Pickup &amp; Diantar Kurir
@@ -361,8 +361,8 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
               onClick={() => setDeliveryMethod('PICKUP_ONLY')}
               className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl border text-center transition-all ${
                 deliveryMethod === 'PICKUP_ONLY'
-                  ? 'border-brand-blue-600 bg-brand-blue-50/50 text-brand-blue-900'
-                  : 'border-brand-border bg-white text-brand-text-secondary'
+                  ? 'border-brand-blue-600 dark:border-brand-blue-500 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 text-brand-blue-900 dark:text-brand-blue-200'
+                  : 'border-brand-border dark:border-slate-700 bg-white dark:bg-slate-800 text-brand-text-secondary dark:text-slate-300'
               }`}
             >
               Pickup Mandiri Saja
@@ -371,7 +371,7 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-brand-text-primary mb-1">
+          <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
             Lokasi Titik Temu / Kos Pickup
           </label>
           <input
@@ -379,11 +379,11 @@ export const SellModal: React.FC<SellModalProps> = ({ isOpen, onClose, onSuccess
             placeholder="Contoh: Depan Gerlam Unpad / Kos Griya Hegarmanah Jatinangor"
             value={pickupLocation}
             onChange={(e) => setPickupLocation(e.target.value)}
-            className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+            className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none"
           />
         </div>
 
-        <div className="pt-2 flex justify-end gap-2 border-t border-brand-border">
+        <div className="pt-2 flex justify-end gap-2 border-t border-brand-border dark:border-slate-800">
           <Button variant="ghost" size="sm" type="button" onClick={onClose}>
             Batal
           </Button>

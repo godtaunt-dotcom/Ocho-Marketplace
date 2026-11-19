@@ -101,27 +101,27 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border/60 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border/60 dark:border-slate-800 pb-6">
         <div>
           <button
             onClick={onBackToHome}
-            className="text-xs font-bold text-brand-blue-600 hover:underline mb-1 inline-block"
+            className="text-xs font-bold text-brand-blue-600 dark:text-brand-blue-400 hover:underline mb-1 inline-block"
           >
             &larr; Kembali ke Marketplace
           </button>
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-2xl sm:text-3xl font-black text-brand-text-primary">
+            <h1 className="font-display text-2xl sm:text-3xl font-black text-brand-text-primary dark:text-slate-100">
               Dashboard Admin Ocho
             </h1>
             <Badge variant="verified">Portal Unpad Jatinangor</Badge>
           </div>
-          <p className="text-xs text-brand-text-secondary mt-1">
+          <p className="text-xs text-brand-text-secondary dark:text-slate-400 mt-1">
             Pusat kendali moderasi barang, audit keuangan komisi, dan persetujuan pencairan dana penjual.
           </p>
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex flex-wrap bg-brand-surface p-1 rounded-2xl border border-brand-border gap-1">
+        <div className="flex flex-wrap bg-brand-surface dark:bg-slate-800 p-1 rounded-2xl border border-brand-border dark:border-slate-700 gap-1">
           {[
             { id: 'kpi', label: 'Ringkasan KPI' },
             { id: 'orders', label: `Pesanan (${orders.length})` },
@@ -134,8 +134,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToHome }) => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
                 activeTab === tab.id
-                  ? 'bg-white shadow-xs text-brand-blue-600'
-                  : 'text-brand-text-secondary hover:text-brand-text-primary'
+                  ? 'bg-white dark:bg-slate-900 shadow-xs text-brand-blue-600 dark:text-brand-blue-400'
+                  : 'text-brand-text-secondary dark:text-slate-400 hover:text-brand-text-primary dark:hover:text-slate-200'
               }`}
             >
               {tab.label}

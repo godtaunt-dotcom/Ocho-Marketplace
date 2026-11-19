@@ -14,7 +14,6 @@ export const Logo: React.FC<LogoProps> = ({
   className = '',
 }) => {
   const isWhite = variant === 'white';
-  const textColor = isWhite ? '#FFFFFF' : '#191C1F';
   const oColor = isWhite ? '#FFFFFF' : '#5170FD';
   const pupilColor = isWhite ? '#3B4FD6' : '#191C1F';
   const gradientStart = isWhite ? '#FFFFFF' : '#5170FD';
@@ -95,7 +94,8 @@ export const Logo: React.FC<LogoProps> = ({
         <text
           x="35"
           y="29"
-          fill={textColor}
+          fill="currentColor"
+          className={isWhite ? 'text-white' : 'text-[#191C1F] dark:text-white transition-colors'}
           fontFamily="'Fredoka', 'Baloo 2', sans-serif"
           fontSize="28"
           fontWeight="700"
@@ -108,7 +108,8 @@ export const Logo: React.FC<LogoProps> = ({
         <text
           x="53"
           y="29"
-          fill={textColor}
+          fill="currentColor"
+          className={isWhite ? 'text-white' : 'text-[#191C1F] dark:text-white transition-colors'}
           fontFamily="'Fredoka', 'Baloo 2', sans-serif"
           fontSize="28"
           fontWeight="700"

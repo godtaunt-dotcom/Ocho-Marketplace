@@ -18,20 +18,20 @@ export const Alert: React.FC<AlertProps> = ({
 }) => {
   const styles = {
     success: {
-      bg: 'bg-brand-success-bg border-emerald-200 text-brand-success-text',
-      icon: <Icon name="CheckCircle" size={20} className="text-emerald-600 mt-0.5" />,
+      bg: 'bg-brand-success-bg dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-brand-success-text dark:text-emerald-300',
+      icon: <Icon name="CheckCircle" size={20} className="text-emerald-600 dark:text-emerald-400 mt-0.5" />,
     },
     warning: {
-      bg: 'bg-brand-warning-bg border-amber-300 text-brand-warning-text',
-      icon: <Icon name="Warning" size={20} className="text-amber-700 mt-0.5" />,
+      bg: 'bg-brand-warning-bg dark:bg-amber-950/50 border-amber-300 dark:border-amber-800 text-brand-warning-text dark:text-amber-300',
+      icon: <Icon name="Warning" size={20} className="text-amber-700 dark:text-amber-400 mt-0.5" />,
     },
     error: {
-      bg: 'bg-red-50 border-red-200 text-red-800',
-      icon: <Icon name="WarningCircle" size={20} className="text-red-600 mt-0.5" />,
+      bg: 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300',
+      icon: <Icon name="WarningCircle" size={20} className="text-red-600 dark:text-red-400 mt-0.5" />,
     },
     info: {
-      bg: 'bg-blue-50 border-blue-200 text-brand-blue-dark',
-      icon: <Icon name="Info" size={20} className="text-brand-blue-600 mt-0.5" />,
+      bg: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800 text-brand-blue-dark dark:text-blue-300',
+      icon: <Icon name="Info" size={20} className="text-brand-blue-600 dark:text-blue-400 mt-0.5" />,
     },
   }[type];
 

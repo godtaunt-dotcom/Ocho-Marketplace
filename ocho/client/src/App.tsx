@@ -481,17 +481,17 @@ export const App: React.FC = () => {
       >
         <div className="space-y-4 py-2">
           {authError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-start gap-2">
+            <div className="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs p-3 rounded-xl flex items-start gap-2">
               <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
               <span>{authError}</span>
             </div>
           )}
 
-          <div className="flex bg-brand-surface p-1 rounded-xl border border-brand-border">
+          <div className="flex bg-brand-surface dark:bg-slate-800 p-1 rounded-xl border border-brand-border dark:border-slate-700">
             <button
               type="button"
               className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                authMode === 'LOGIN' ? 'bg-white shadow-xs text-brand-blue-600' : 'text-brand-text-secondary'
+                authMode === 'LOGIN' ? 'bg-white dark:bg-slate-700 shadow-xs text-brand-blue-600 dark:text-brand-blue-400' : 'text-brand-text-secondary dark:text-slate-400'
               }`}
               onClick={() => {
                 setAuthMode('LOGIN');
@@ -503,7 +503,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                authMode === 'REGISTER' ? 'bg-white shadow-xs text-brand-blue-600' : 'text-brand-text-secondary'
+                authMode === 'REGISTER' ? 'bg-white dark:bg-slate-700 shadow-xs text-brand-blue-600 dark:text-brand-blue-400' : 'text-brand-text-secondary dark:text-slate-400'
               }`}
               onClick={() => {
                 setAuthMode('REGISTER');
@@ -517,7 +517,7 @@ export const App: React.FC = () => {
           <form onSubmit={handleAuthSubmit} className="space-y-3">
             {authMode === 'REGISTER' && (
               <div>
-                <label className="block text-xs font-bold text-brand-text-primary mb-1">
+                <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
                   Nama Lengkap Mahasiswa
                 </label>
                 <input
@@ -526,34 +526,34 @@ export const App: React.FC = () => {
                   placeholder="Contoh: Rian Pratama"
                   value={authName}
                   onChange={(e) => setAuthName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 />
               </div>
             )}
 
             {authMode === 'REGISTER' && (
               <div>
-                <label className="block text-xs font-bold text-brand-text-primary mb-1">
+                <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
                   Username Toko / Profil (Publik)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary text-xs font-bold">@</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary dark:text-slate-400 text-xs font-bold">@</span>
                   <input
                     type="text"
                     placeholder="nama_unik (opsional, default dari email)"
                     value={authUsername}
                     onChange={(e) => setAuthUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                    className="w-full pl-7 pr-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                    className="w-full pl-7 pr-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                   />
                 </div>
-                <p className="text-[10px] text-brand-text-secondary mt-1">
+                <p className="text-[10px] text-brand-text-secondary dark:text-slate-400 mt-1">
                   Nama asli Anda aman & tidak dipublikasikan ke pembeli. Dilarang unsur SARA, rasisme, atau kata kasar.
                 </p>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-brand-text-primary mb-1">
+              <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
                 Email Kampus Unpad
               </label>
               <input
@@ -562,15 +562,15 @@ export const App: React.FC = () => {
                 placeholder="nama@mail.unpad.ac.id"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
               />
-              <p className="text-[10px] text-brand-text-secondary mt-1">
-                Wajib domain <strong className="text-brand-blue-600 font-semibold">@mail.unpad.ac.id</strong>
+              <p className="text-[10px] text-brand-text-secondary dark:text-slate-400 mt-1">
+                Wajib domain <strong className="text-brand-blue-600 dark:text-brand-blue-400 font-semibold">@mail.unpad.ac.id</strong>
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-brand-text-primary mb-1">
+              <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
                 Password
               </label>
               <input
@@ -579,13 +579,13 @@ export const App: React.FC = () => {
                 placeholder="Minimal 8 karakter"
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
               />
             </div>
 
             {authMode === 'REGISTER' && (
               <div>
-                <label className="block text-xs font-bold text-brand-text-primary mb-1">
+                <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
                   Nomor WhatsApp
                 </label>
                 <input
@@ -593,7 +593,7 @@ export const App: React.FC = () => {
                   placeholder="08123456789"
                   value={authPhone}
                   onChange={(e) => setAuthPhone(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 />
               </div>
             )}
@@ -723,48 +723,48 @@ export const App: React.FC = () => {
               {createdOrderResult.paymentMethod === 'QRIS' ? (
                 <>
                   <div className="space-y-1">
-                    <h4 className="font-display font-bold text-base text-brand-text-primary">
+                    <h4 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
                       Scan QRIS Resmi untuk Menyelesaikan Pembayaran
                     </h4>
-                    <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
+                    <p className="text-xs text-brand-text-secondary dark:text-slate-400 max-w-sm mx-auto">
                       Barang di-reserve selama <strong className="text-brand-orange font-bold">30 menit</strong>.
                     </p>
                   </div>
 
-                  <div className="bg-white p-3 rounded-2xl border border-brand-border inline-block mx-auto text-center space-y-2 max-w-[280px] shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-brand-border dark:border-slate-700 inline-block mx-auto text-center space-y-2 max-w-[280px] shadow-sm">
                     <img
                       src="/qris.jpg"
                       alt="QRIS Ocho Resmi"
-                      className="w-full h-auto rounded-xl object-contain mx-auto border border-brand-border/40"
+                      className="w-full h-auto rounded-xl object-contain mx-auto border border-brand-border/40 dark:border-slate-700"
                     />
-                    <div className="text-[11px] font-mono font-bold text-brand-blue-700 bg-brand-surface py-1 px-2 rounded-lg">
+                    <div className="text-[11px] font-mono font-bold text-brand-blue-700 dark:text-brand-blue-300 bg-brand-surface dark:bg-slate-900 py-1 px-2 rounded-lg">
                       NMID: ID1026493553733
                     </div>
-                    <p className="text-[11px] text-brand-text-secondary leading-tight">
+                    <p className="text-[11px] text-brand-text-secondary dark:text-slate-400 leading-tight">
                       Bisa di-scan dari GoPay, BCA, Mandiri, BNI, BRI, OVO, atau Dana.
                     </p>
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-xs text-brand-text-secondary">Total Tagihan:</p>
+                    <p className="text-xs text-brand-text-secondary dark:text-slate-400">Total Tagihan:</p>
                     <p className="font-display font-black text-2xl text-brand-orange tabular-nums">
                       {formatRupiah(createdOrderResult.buyerTotalRupiah)}
                     </p>
                   </div>
 
                   {/* Upload Bukti Pembayaran Form */}
-                  <div className="bg-brand-surface p-3.5 rounded-2xl border border-brand-border space-y-2.5 text-left">
-                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1.5">
-                      <Icon name="UploadSimple" size={16} className="text-brand-blue-600" />
+                  <div className="bg-brand-surface dark:bg-slate-800/60 p-3.5 rounded-2xl border border-brand-border dark:border-slate-700 space-y-2.5 text-left">
+                    <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 flex items-center gap-1.5">
+                      <Icon name="UploadSimple" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
                       <span>Unggah Screenshot Bukti Transfer *</span>
                     </label>
-                    <p className="text-[11px] text-brand-text-secondary leading-snug">
+                    <p className="text-[11px] text-brand-text-secondary dark:text-slate-400 leading-snug">
                       Wajib melampirkan screenshot atau foto resi pembayaran QRIS sebagai bukti konfirmasi transaksi.
                     </p>
 
                     {checkoutProofUrl ? (
                       <div className="space-y-2">
-                        <div className="relative border border-brand-border rounded-xl overflow-hidden bg-white p-2">
+                        <div className="relative border border-brand-border dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 p-2">
                           <img
                             src={checkoutProofUrl}
                             alt="Bukti Transfer"
@@ -772,26 +772,26 @@ export const App: React.FC = () => {
                           />
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-emerald-700 font-bold flex items-center gap-1">
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1">
                             <Icon name="CheckCircle" size={16} weight="fill" />
                             Bukti transfer berhasil dipilih
                           </span>
                           <button
                             type="button"
                             onClick={() => setCheckoutProofUrl(null)}
-                            className="text-red-600 hover:underline font-bold text-[11px]"
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold text-[11px]"
                           >
                             Ganti Screenshot
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <label className="border-2 border-dashed border-brand-blue-300 hover:border-brand-blue-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-white transition-colors">
-                        <Icon name="UploadSimple" size={24} className="text-brand-blue-600 mb-1" />
-                        <span className="text-xs font-bold text-brand-blue-700">
+                      <label className="border-2 border-dashed border-brand-blue-300 dark:border-slate-700 hover:border-brand-blue-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-white dark:bg-slate-800/80 transition-colors">
+                        <Icon name="UploadSimple" size={24} className="text-brand-blue-600 dark:text-brand-blue-400 mb-1" />
+                        <span className="text-xs font-bold text-brand-blue-700 dark:text-brand-blue-300">
                           {uploadingProof ? 'Memproses gambar...' : 'Klik untuk Unggah Screenshot Bukti'}
                         </span>
-                        <span className="text-[10px] text-brand-text-secondary mt-0.5">
+                        <span className="text-[10px] text-brand-text-secondary dark:text-slate-400 mt-0.5">
                           Format JPG, PNG, atau JPEG
                         </span>
                         <input
@@ -830,11 +830,11 @@ export const App: React.FC = () => {
                 </>
               ) : (
                 <div className="space-y-3">
-                  <h4 className="font-display font-bold text-base text-brand-text-primary">
+                  <h4 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
                     Pesanan COD Berhasil Dipesan!
                   </h4>
-                  <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
-                    Kurir Ocho akan menghubungi WhatsApp <strong className="text-brand-text-primary">{createdOrderResult.buyerPhone}</strong> dan mengantarkan barang ke <strong className="text-brand-text-primary">{createdOrderResult.deliveryAddress}</strong>.
+                  <p className="text-xs text-brand-text-secondary dark:text-slate-400 max-w-sm mx-auto">
+                    Kurir Ocho akan menghubungi WhatsApp <strong className="text-brand-text-primary dark:text-slate-200">{createdOrderResult.buyerPhone}</strong> dan mengantarkan barang ke <strong className="text-brand-text-primary dark:text-slate-200">{createdOrderResult.deliveryAddress}</strong>.
                   </p>
                   <Button
                     variant="primary"
@@ -853,17 +853,17 @@ export const App: React.FC = () => {
           ) : (
             <div className="space-y-4 py-2">
               {/* Item Summary */}
-              <div className="flex items-center gap-3 p-3 bg-brand-surface rounded-xl border border-brand-border">
+              <div className="flex items-center gap-3 p-3 bg-brand-surface dark:bg-slate-800/60 rounded-xl border border-brand-border dark:border-slate-700">
                 <img
                   src={checkoutModalItem.item.photos[0]?.url}
                   alt=""
-                  className="w-16 h-16 rounded-lg object-cover shrink-0 border border-brand-border"
+                  className="w-16 h-16 rounded-lg object-cover shrink-0 border border-brand-border dark:border-slate-700"
                 />
                 <div className="space-y-0.5 min-w-0">
-                  <h4 className="font-display font-bold text-sm text-brand-text-primary truncate">
+                  <h4 className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100 truncate">
                     {checkoutModalItem.item.title}
                   </h4>
-                  <p className="text-xs text-brand-text-secondary">
+                  <p className="text-xs text-brand-text-secondary dark:text-slate-400">
                     Penjual:{' '}
                     {checkoutModalItem.item.seller.username
                       ? `@${checkoutModalItem.item.seller.username}`
@@ -879,8 +879,8 @@ export const App: React.FC = () => {
               {checkoutModalItem.deliveryMethod === 'DELIVERY' && (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                      <Icon name="Truck" size={16} className="text-brand-blue-600" />
+                    <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 flex items-center gap-1 mb-1">
+                      <Icon name="Truck" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
                       <span>Alamat Pengantaran (Nama Kos / Gedung) *</span>
                     </label>
                     <input
@@ -889,13 +889,13 @@ export const App: React.FC = () => {
                       placeholder="Contoh: Kos Pondok Melati Kamar 12, Jl. Sayang No. 45"
                       value={checkoutAddress}
                       onChange={(e) => setCheckoutAddress(e.target.value)}
-                      className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                      className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                      <Icon name="Calendar" size={16} className="text-brand-blue-600" />
+                    <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 flex items-center gap-1 mb-1">
+                      <Icon name="Calendar" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
                       <span>Tanggal Pengantaran (Pilihan Hari: Maksimal 3 Hari) *</span>
                     </label>
                     <input
@@ -905,9 +905,9 @@ export const App: React.FC = () => {
                       max={new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10)}
                       value={checkoutDeliveryDate}
                       onChange={(e) => setCheckoutDeliveryDate(e.target.value)}
-                      className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                      className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100"
                     />
-                    <p className="text-[10px] text-brand-text-secondary mt-1">
+                    <p className="text-[10px] text-brand-text-secondary dark:text-slate-400 mt-1">
                       Pilih tanggal pengantaran antara hari ini hingga maksimal 3 hari ke depan.
                     </p>
                   </div>
@@ -916,8 +916,8 @@ export const App: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                    <Icon name="Phone" size={16} className="text-brand-blue-600" />
+                  <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 flex items-center gap-1 mb-1">
+                    <Icon name="Phone" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
                     <span>No. WhatsApp Pembeli *</span>
                   </label>
                   <input
@@ -926,13 +926,13 @@ export const App: React.FC = () => {
                     placeholder="08123456789"
                     value={checkoutPhone}
                     onChange={(e) => setCheckoutPhone(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-brand-text-primary flex items-center gap-1 mb-1">
-                    <Icon name="FileText" size={16} className="text-brand-blue-600" />
+                  <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 flex items-center gap-1 mb-1">
+                    <Icon name="FileText" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
                     <span>Catatan untuk Penjual / Kurir</span>
                   </label>
                   <input
@@ -940,26 +940,26 @@ export const App: React.FC = () => {
                     placeholder="Titip ibu kos / ketemu di gerlam"
                     value={checkoutNotes}
                     onChange={(e) => setCheckoutNotes(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
               {/* Price Calculation */}
-              <div className="space-y-2 text-xs bg-white p-3.5 rounded-xl border border-brand-border/60">
-                <div className="flex justify-between text-brand-text-secondary">
+              <div className="space-y-2 text-xs bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                <div className="flex justify-between text-brand-text-secondary dark:text-slate-400">
                   <span>Metode Pengambilan:</span>
-                  <span className="font-bold text-brand-text-primary">
+                  <span className="font-bold text-brand-text-primary dark:text-slate-200">
                     {checkoutModalItem.deliveryMethod === 'PICKUP' ? 'Pickup Kampus (Gratis)' : 'Diantar Tim Ocho'}
                   </span>
                 </div>
-                <div className="flex justify-between text-brand-text-secondary">
+                <div className="flex justify-between text-brand-text-secondary dark:text-slate-400">
                   <span>Metode Pembayaran:</span>
-                  <span className="font-bold text-brand-text-primary">
+                  <span className="font-bold text-brand-text-primary dark:text-slate-200">
                     {checkoutModalItem.paymentMethod === 'QRIS' ? 'QRIS Instan' : 'COD (Bayar Tunai saat Kurir Tiba)'}
                   </span>
                 </div>
-                <div className="border-t border-brand-border/60 pt-2 flex justify-between text-sm font-bold text-brand-text-primary">
+                <div className="border-t border-brand-border/60 dark:border-slate-700 pt-2 flex justify-between text-sm font-bold text-brand-text-primary dark:text-slate-100">
                   <span>Total Tagihan:</span>
                   <span className="text-brand-orange font-black text-base">
                     {formatRupiah(
@@ -970,7 +970,7 @@ export const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-brand-border">
+              <div className="flex justify-end gap-2 pt-2 border-t border-brand-border dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setCheckoutModalItem(null)}>
                   Batal
                 </Button>

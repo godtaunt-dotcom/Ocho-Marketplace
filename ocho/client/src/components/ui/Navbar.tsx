@@ -69,15 +69,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-brand-border dark:border-slate-800 transition-colors">
-      {/* Top Banner (Campus Verified Info) */}
-      <div className="bg-[#191c1f] dark:bg-black text-white text-[11px] font-medium py-1 px-4 text-center select-none flex items-center justify-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Eksklusif Mahasiswa Unpad &bull; Jatinangor & Dipati Ukur</span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Logo & Campus Tag */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <a
             href="#/"
             onClick={(e) => {
@@ -158,12 +152,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Dark Mode Toggle */}
           <button
             type="button"
             onClick={onToggleDarkMode}
-            className="p-2 rounded-full text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-full text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
             title={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
             aria-label={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
           >
@@ -175,17 +169,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {currentUser ? (
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               {/* Admin Portal Button (Only visible if ADMIN) */}
               {currentUser.role === 'ADMIN' && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onAdminClick}
-                  className="border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs px-2.5 py-1"
+                  className="border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs px-2 sm:px-2.5 py-1"
                 >
-                  <Icon name="ShieldWarning" size={16} className="mr-1" />
-                  Admin
+                  <Icon name="ShieldWarning" size={16} className="sm:mr-1" />
+                  <span className="hidden sm:inline">Admin</span>
                 </Button>
               )}
 
@@ -194,10 +188,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onOrdersClick}
-                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs px-2.5 py-1"
+                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs p-1.5 sm:px-2.5 sm:py-1"
                 title="Pesanan Saya"
               >
-                <Icon name="Package" size={16} className="mr-1 text-brand-blue-600 dark:text-brand-blue-400" />
+                <Icon name="Package" size={16} className="text-brand-blue-600 dark:text-brand-blue-400 sm:mr-1" />
                 <span className="hidden sm:inline">Pesanan</span>
               </Button>
 
@@ -206,10 +200,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onWalletClick}
-                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs px-2.5 py-1"
+                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs p-1.5 sm:px-2.5 sm:py-1"
                 title="Dompet & Saldo"
               >
-                <Icon name="Wallet" size={16} className="mr-1 text-emerald-600 dark:text-emerald-400" />
+                <Icon name="Wallet" size={16} className="text-emerald-600 dark:text-emerald-400 sm:mr-1" />
                 <span className="hidden sm:inline">Dompet</span>
               </Button>
 
@@ -217,13 +211,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={onEditUsernameClick}
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f5f5f7] dark:bg-slate-800 hover:bg-brand-blue-50 dark:hover:bg-slate-700 rounded-full border border-brand-border dark:border-slate-700 hover:border-brand-blue-300 transition-colors cursor-pointer group"
+                className="flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 bg-[#f5f5f7] dark:bg-slate-800 hover:bg-brand-blue-50 dark:hover:bg-slate-700 rounded-full border border-brand-border dark:border-slate-700 hover:border-brand-blue-300 transition-colors cursor-pointer group"
                 title="Klik untuk ubah username toko"
               >
-                <div className="w-5 h-5 rounded-full bg-brand-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-brand-blue-600 text-white font-bold text-[11px] sm:text-[10px] flex items-center justify-center shrink-0">
                   {(currentUser.username || currentUser.name).charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-bold text-brand-text-primary dark:text-slate-200 group-hover:text-brand-blue-600 dark:group-hover:text-brand-blue-400 hidden md:inline truncate max-w-[120px]">
+                <span className="text-xs font-bold text-brand-text-primary dark:text-slate-200 group-hover:text-brand-blue-600 dark:group-hover:text-brand-blue-400 hidden lg:inline truncate max-w-[120px]">
                   {currentUser.username ? `@${currentUser.username}` : `@${currentUser.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                 </span>
               </button>
@@ -241,9 +235,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <Button
               variant="ghost"
-              size="md"
+              size="sm"
               leftIcon={<Icon name="User" size={16} />}
               onClick={onLoginClick}
+              className="text-xs px-2.5 py-1.5 sm:text-sm sm:px-3 sm:py-2"
             >
               Masuk
             </Button>
@@ -251,11 +246,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <Button
             variant="primary"
-            size="md"
+            size="sm"
             leftIcon={<Icon name="PlusCircle" size={16} />}
             onClick={onSellClick}
+            className="text-xs px-2.5 py-1.5 sm:text-sm sm:px-4 sm:py-2 shrink-0 font-bold"
           >
-            Jual Barang
+            <span className="hidden sm:inline">Jual Barang</span>
+            <span className="sm:hidden">Jual</span>
           </Button>
         </div>
       </div>

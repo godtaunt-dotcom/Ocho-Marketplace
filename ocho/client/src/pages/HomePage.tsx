@@ -144,8 +144,8 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="max-w-7xl mx-auto px-6 space-y-8">
           {/* Header Title */}
           <div className="max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-orange-light text-brand-orange-dark border border-brand-orange/20 text-xs font-bold uppercase tracking-wider">
-              <Icon name="ShieldCheck" size={16} className="text-brand-orange" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold uppercase tracking-wider">
+              <Icon name="ShieldCheck" size={16} className="text-amber-600 dark:text-amber-400" />
               <span>Khusus Mahasiswa Unpad Jatinangor</span>
             </div>
 
@@ -300,17 +300,17 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Condition Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-brand-text-secondary font-medium shrink-0">Kondisi:</span>
+              <span className="text-xs text-brand-text-secondary dark:text-slate-400 font-medium shrink-0">Kondisi:</span>
               <select
                 value={selectedCondition}
                 onChange={(e) => {
                   setSelectedCondition(e.target.value);
                   setPage(1);
                 }}
-                className="text-xs font-semibold bg-brand-surface border border-brand-border rounded-lg px-2.5 py-1.5 text-brand-text-primary focus:outline-none focus:border-brand-blue-500 cursor-pointer"
+                className="text-xs font-semibold bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-brand-text-primary dark:text-slate-100 focus:outline-none focus:border-brand-blue-500 cursor-pointer"
               >
                 {conditionsList.map((c) => (
-                  <option key={c.value} value={c.value}>
+                  <option key={c.value} value={c.value} className="dark:bg-slate-800 dark:text-slate-100">
                     {c.label}
                   </option>
                 ))}
@@ -319,17 +319,17 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Delivery Method Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-brand-text-secondary font-medium shrink-0">Pengiriman:</span>
+              <span className="text-xs text-brand-text-secondary dark:text-slate-400 font-medium shrink-0">Pengiriman:</span>
               <select
                 value={selectedDelivery}
                 onChange={(e) => {
                   setSelectedDelivery(e.target.value as any);
                   setPage(1);
                 }}
-                className="text-xs font-semibold bg-brand-surface border border-brand-border rounded-lg px-2.5 py-1.5 text-brand-text-primary focus:outline-none focus:border-brand-blue-500 cursor-pointer"
+                className="text-xs font-semibold bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-brand-text-primary dark:text-slate-100 focus:outline-none focus:border-brand-blue-500 cursor-pointer"
               >
                 {deliveryMethodsList.map((d) => (
-                  <option key={d.value} value={d.value}>
+                  <option key={d.value} value={d.value} className="dark:bg-slate-800 dark:text-slate-100">
                     {d.label}
                   </option>
                 ))}
@@ -340,7 +340,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue-600 hover:text-brand-blue-800 transition-colors cursor-pointer py-1 px-2 rounded hover:bg-brand-blue-50"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue-600 dark:text-brand-blue-400 hover:text-brand-blue-800 dark:hover:text-brand-blue-300 transition-colors cursor-pointer py-1 px-2 rounded hover:bg-brand-blue-50 dark:hover:bg-slate-800"
               >
                 <Icon name="ArrowCounterClockwise" size={16} />
                 <span>Reset Filter ({activeFiltersCount})</span>
@@ -350,7 +350,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Right Sort: Sort Order */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs text-brand-text-secondary font-medium flex items-center gap-1">
+            <span className="text-xs text-brand-text-secondary dark:text-slate-400 font-medium flex items-center gap-1">
               <Icon name="ArrowsDownUp" size={16} />
               <span>Urutkan:</span>
             </span>
@@ -360,10 +360,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                 setSelectedSort(e.target.value as any);
                 setPage(1);
               }}
-              className="text-xs font-semibold bg-brand-surface border border-brand-border rounded-lg px-3 py-1.5 text-brand-text-primary focus:outline-none focus:border-brand-blue-500 cursor-pointer"
+              className="text-xs font-semibold bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-lg px-3 py-1.5 text-brand-text-primary dark:text-slate-100 focus:outline-none focus:border-brand-blue-500 cursor-pointer"
             >
               {sortOptions.map((s) => (
-                <option key={s.value} value={s.value}>
+                <option key={s.value} value={s.value} className="dark:bg-slate-800 dark:text-slate-100">
                   {s.label}
                 </option>
               ))}
@@ -375,12 +375,12 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 4. PRODUCT GRID & RESULTS SECTION */}
       <section className="max-w-7xl mx-auto px-6 space-y-6">
         {/* Results Meta */}
-        <div className="flex items-center justify-between text-xs text-brand-text-secondary font-medium">
+        <div className="flex items-center justify-between text-xs text-brand-text-secondary dark:text-slate-400 font-medium">
           <div>
             {itemsData ? (
               <span>
-                Menampilkan <strong className="text-brand-text-primary">{itemsData.data.length}</strong> dari{' '}
-                <strong className="text-brand-text-primary">{itemsData.meta.total}</strong> barang preloved
+                Menampilkan <strong className="text-brand-text-primary dark:text-slate-100">{itemsData.data.length}</strong> dari{' '}
+                <strong className="text-brand-text-primary dark:text-slate-100">{itemsData.meta.total}</strong> barang preloved
               </span>
             ) : (
               <span>Memuat barang...</span>
@@ -388,7 +388,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {selectedCategory !== 'semua' && (
-            <div className="text-xs font-semibold text-brand-blue-dark bg-brand-blue-50 px-2.5 py-1 rounded-md">
+            <div className="text-xs font-semibold text-brand-blue-700 dark:text-brand-blue-300 bg-brand-blue-50 dark:bg-brand-blue-950/60 px-2.5 py-1 rounded-md border border-brand-blue-100 dark:border-brand-blue-900">
               Kategori: {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
             </div>
           )}
@@ -396,7 +396,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-2xl text-center space-y-3">
+          <div className="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-6 rounded-2xl text-center space-y-3">
             <p className="font-semibold text-sm">{error}</p>
             <Button variant="secondary" size="sm" onClick={() => setPage(1)}>
               Coba Muat Ulang
@@ -415,15 +415,15 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Empty State */}
         {!loading && !error && itemsData && itemsData.data.length === 0 && (
-          <div className="bg-white border border-brand-border rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4">
-            <div className="w-16 h-16 rounded-full bg-brand-surface text-brand-text-secondary flex items-center justify-center mx-auto">
+          <div className="bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-800 rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4">
+            <div className="w-16 h-16 rounded-full bg-brand-surface dark:bg-slate-800 text-brand-text-secondary dark:text-slate-400 flex items-center justify-center mx-auto">
               <Icon name="Package" size={24} className="opacity-40" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-display font-bold text-lg text-brand-text-primary">
+              <h3 className="font-display font-bold text-lg text-brand-text-primary dark:text-slate-100">
                 Barang tidak ditemukan
               </h3>
-              <p className="text-xs text-brand-text-secondary leading-relaxed">
+              <p className="text-xs text-brand-text-secondary dark:text-slate-400 leading-relaxed">
                 Tidak ada barang yang cocok dengan kriteria pencarian atau filter yang dipilih. Coba cari kata kunci lain atau reset filter.
               </p>
             </div>
@@ -448,7 +448,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Pagination Bar */}
         {!loading && itemsData && itemsData.meta.totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-6 border-t border-brand-border">
+          <div className="flex items-center justify-center gap-3 pt-6 border-t border-brand-border dark:border-slate-800">
             <Button
               variant="secondary"
               size="sm"
@@ -459,7 +459,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               Sebelumnya
             </Button>
 
-            <span className="text-xs font-semibold text-brand-text-secondary px-3 py-1 bg-brand-surface rounded-lg">
+            <span className="text-xs font-semibold text-brand-text-secondary dark:text-slate-300 px-3 py-1 bg-brand-surface dark:bg-slate-800 rounded-lg">
               Halaman {page} dari {itemsData.meta.totalPages}
             </span>
 
@@ -478,23 +478,23 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* 5. CAMPUS SAFETY & PICKUP NOTICE */}
       <section className="max-w-7xl mx-auto px-6">
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-brand-surface dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-brand-border flex items-center justify-center text-brand-blue-600 shadow-xs shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-brand-border dark:border-slate-700 flex items-center justify-center text-brand-blue-600 dark:text-brand-blue-400 shadow-xs shrink-0">
               <Icon name="MapPin" size={24} />
             </div>
             <div className="space-y-1">
-              <h4 className="font-display font-bold text-sm text-brand-text-primary">
+              <h4 className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100">
                 Titik Temu Aman di Jatinangor
               </h4>
-              <p className="text-xs text-brand-text-secondary leading-relaxed">
+              <p className="text-xs text-brand-text-secondary dark:text-slate-400 leading-relaxed">
                 Rekomendasi titik serah terima barang: Gerbang Lama (Gerlam), Rektorat Unpad, Bale Santika, atau Perpustakaan Pusat CISRAL.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-blue-700 bg-brand-blue-50 px-3 py-1.5 rounded-xl border border-brand-blue-200">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-blue-700 dark:text-brand-blue-300 bg-brand-blue-50 dark:bg-brand-blue-950/60 px-3 py-1.5 rounded-xl border border-brand-blue-200 dark:border-brand-blue-800">
               <Icon name="Truck" size={16} />
               <span>Ongkir Flat Rp 3.000 via Tim Ocho</span>
             </span>

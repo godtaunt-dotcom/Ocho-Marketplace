@@ -221,13 +221,13 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         </div>
 
         {/* Role Toggle Tabs */}
-        <div className="flex bg-brand-surface p-1 rounded-2xl border border-brand-border">
+        <div className="flex bg-brand-surface dark:bg-slate-800 p-1 rounded-2xl border border-brand-border dark:border-slate-700">
           <button
             onClick={() => setRoleTab('buyer')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
               roleTab === 'buyer'
-                ? 'bg-white shadow-xs text-brand-blue-600'
-                : 'text-brand-text-secondary hover:text-brand-text-primary'
+                ? 'bg-white dark:bg-slate-900 shadow-xs text-brand-blue-600 dark:text-brand-blue-400'
+                : 'text-brand-text-secondary dark:text-slate-400 hover:text-brand-text-primary dark:hover:text-slate-200'
             }`}
           >
             Belanjaan Saya (Pembeli)
@@ -236,8 +236,8 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
             onClick={() => setRoleTab('seller')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
               roleTab === 'seller'
-                ? 'bg-white shadow-xs text-brand-blue-600'
-                : 'text-brand-text-secondary hover:text-brand-text-primary'
+                ? 'bg-white dark:bg-slate-900 shadow-xs text-brand-blue-600 dark:text-brand-blue-400'
+                : 'text-brand-text-secondary dark:text-slate-400 hover:text-brand-text-primary dark:hover:text-slate-200'
             }`}
           >
             Penjualan Saya (Penjual)
@@ -249,14 +249,14 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="bg-white rounded-2xl p-5 border border-brand-border animate-pulse space-y-3">
-              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-              <div className="h-16 bg-gray-100 rounded-xl"></div>
+            <div key={n} className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-brand-border dark:border-slate-800 animate-pulse space-y-3">
+              <div className="h-4 bg-gray-200 dark:bg-slate-800 rounded w-1/4"></div>
+              <div className="h-16 bg-gray-100 dark:bg-slate-800/60 rounded-xl"></div>
             </div>
           ))}
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-2xl text-center space-y-2">
+        <div className="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-6 rounded-2xl text-center space-y-2">
           <Icon name="WarningCircle" size={24} className="mx-auto text-red-500" />
           <p className="text-sm font-bold">{error}</p>
           <Button variant="outline" size="sm" onClick={loadOrders}>
@@ -264,14 +264,14 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
           </Button>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-brand-border p-12 text-center space-y-3 shadow-card">
-          <div className="w-16 h-16 rounded-full bg-brand-surface text-brand-text-secondary flex items-center justify-center mx-auto border border-brand-border">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-brand-border dark:border-slate-800 p-12 text-center space-y-3 shadow-card">
+          <div className="w-16 h-16 rounded-full bg-brand-surface dark:bg-slate-800 text-brand-text-secondary dark:text-slate-400 flex items-center justify-center mx-auto border border-brand-border dark:border-slate-700">
             <Icon name="Package" size={24} />
           </div>
-          <h3 className="font-display font-bold text-base text-brand-text-primary">
+          <h3 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
             Belum Ada Pesanan {roleTab === 'buyer' ? 'Pembelian' : 'Penjualan'}
           </h3>
-          <p className="text-xs text-brand-text-secondary max-w-sm mx-auto">
+          <p className="text-xs text-brand-text-secondary dark:text-slate-400 max-w-sm mx-auto">
             {roleTab === 'buyer'
               ? 'Temukan barang preloved kos, buku, atau fashion favoritmu di marketplace Ocho.'
               : 'Barang yang kamu iklankan belum ada yang memesan. Pastikan hargamu bersaing!'}
@@ -287,22 +287,22 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
           {orders.map((order) => (
             <div
               key={order.id}
-              className="bg-white rounded-2xl border border-brand-border p-5 shadow-card hover:border-gray-300 transition-all space-y-4"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 p-5 shadow-card hover:border-gray-300 dark:hover:border-slate-700 transition-all space-y-4"
             >
               {/* Order Card Header */}
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-border/60 pb-3 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-border/60 dark:border-slate-800 pb-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-brand-text-primary">
+                  <span className="font-mono font-bold text-brand-text-primary dark:text-slate-100">
                     {order.orderNumber}
                   </span>
-                  <span className="text-brand-text-secondary">&bull;</span>
-                  <span className="text-brand-text-secondary">
+                  <span className="text-brand-text-secondary dark:text-slate-500">&bull;</span>
+                  <span className="text-brand-text-secondary dark:text-slate-400">
                     {formatDateTime(order.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-brand-text-secondary">
-                    Metode: <strong className="text-brand-text-primary">{order.paymentMethod}</strong> ({order.deliveryMethod})
+                  <span className="text-brand-text-secondary dark:text-slate-400">
+                    Metode: <strong className="text-brand-text-primary dark:text-slate-200">{order.paymentMethod}</strong> ({order.deliveryMethod})
                   </span>
                   {getStatusBadge(order.status)}
                 </div>

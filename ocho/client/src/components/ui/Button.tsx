@@ -32,10 +32,10 @@ export const Button: React.FC<ButtonProps> = ({
       'bg-brand-blue-600 hover:bg-brand-blue-700 active:bg-brand-blue-dark text-white shadow-sm focus:ring-brand-blue',
     // Outline: Clean border with accessible dark blue text
     outline:
-      'bg-white border border-brand-border hover:border-brand-blue-600 hover:bg-brand-blue-50 text-brand-blue-600 focus:ring-brand-blue',
+      'bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-700 hover:border-brand-blue-600 hover:bg-brand-blue-50 dark:hover:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400 focus:ring-brand-blue',
     // Ghost: Subtle background on hover
     ghost:
-      'bg-transparent hover:bg-brand-blue-tint text-brand-text-primary hover:text-brand-blue-600 focus:ring-brand-blue',
+      'bg-transparent hover:bg-brand-blue-tint dark:hover:bg-slate-800 text-brand-text-primary dark:text-slate-200 hover:text-brand-blue-600 dark:hover:text-brand-blue-400 focus:ring-brand-blue',
     // Danger: For destructive actions
     danger:
       'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white shadow-sm focus:ring-red-500',

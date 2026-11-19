@@ -396,7 +396,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
             {/* Delivery Method Options */}
             <div className="space-y-2.5">
-              <label className="font-display font-bold text-xs text-brand-text-primary uppercase tracking-wider block">
+              <label className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-200 uppercase tracking-wider block">
                 Metode Pengambilan
               </label>
 
@@ -407,21 +407,21 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   onClick={() => handleDeliveryChange('PICKUP')}
                   className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
                     deliveryMethod === 'PICKUP'
-                      ? 'border-brand-blue-600 bg-brand-blue-50/50 ring-2 ring-brand-blue-100'
-                      : 'border-brand-border hover:border-brand-blue-300 bg-white'
+                      ? 'border-brand-blue-600 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 ring-2 ring-brand-blue-100 dark:ring-brand-blue-900'
+                      : 'border-brand-border dark:border-slate-700 hover:border-brand-blue-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <Icon name="Package" size={16} className="text-brand-blue-600" />
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                    <Icon name="Package" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded">
                       Gratis
                     </span>
                   </div>
                   <div>
-                    <span className="font-display font-bold text-xs text-brand-text-primary block">
+                    <span className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-100 block">
                       Pickup Kampus
                     </span>
-                    <span className="text-[10px] text-brand-text-secondary">
+                    <span className="text-[10px] text-brand-text-secondary dark:text-slate-400">
                       Chat & janjian titik temu
                     </span>
                   </div>
@@ -434,23 +434,23 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   onClick={() => handleDeliveryChange('DELIVERY')}
                   className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
                     isPickupOnly
-                      ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200'
+                      ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                       : deliveryMethod === 'DELIVERY'
-                      ? 'border-brand-blue-600 bg-brand-blue-50/50 ring-2 ring-brand-blue-100 cursor-pointer'
-                      : 'border-brand-border hover:border-brand-blue-300 bg-white cursor-pointer'
+                      ? 'border-brand-blue-600 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 ring-2 ring-brand-blue-100 dark:ring-brand-blue-900 cursor-pointer'
+                      : 'border-brand-border dark:border-slate-700 hover:border-brand-blue-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <Icon name="Truck" size={16} className="text-brand-blue-600" />
-                    <span className="text-[10px] font-bold text-brand-orange-dark bg-brand-orange-light px-1.5 py-0.2 rounded">
+                    <Icon name="Truck" size={16} className="text-brand-blue-600 dark:text-brand-blue-400" />
+                    <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.2 rounded">
                       {isFirstOrder ? 'Free Order #1' : formatRupiah(standardDeliveryFee)}
                     </span>
                   </div>
                   <div>
-                    <span className="font-display font-bold text-xs text-brand-text-primary block">
+                    <span className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-100 block">
                       Antar Tim Ocho
                     </span>
-                    <span className="text-[10px] text-brand-text-secondary">
+                    <span className="text-[10px] text-brand-text-secondary dark:text-slate-400">
                       {isPickupOnly ? 'Barang besar: hanya pickup' : 'Pilih alamat & jadwal (maks 3 hari)'}
                     </span>
                   </div>
@@ -460,7 +460,7 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
             {/* Payment Method Options */}
             <div className="space-y-2.5">
-              <label className="font-display font-bold text-xs text-brand-text-primary uppercase tracking-wider block">
+              <label className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-200 uppercase tracking-wider block">
                 Metode Pembayaran
               </label>
 
@@ -471,16 +471,16 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   onClick={() => setPaymentMethod('QRIS')}
                   className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
                     paymentMethod === 'QRIS'
-                      ? 'border-brand-blue-600 bg-brand-blue-50/50 ring-2 ring-brand-blue-100'
-                      : 'border-brand-border hover:border-brand-blue-300 bg-white'
+                      ? 'border-brand-blue-600 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 ring-2 ring-brand-blue-100 dark:ring-brand-blue-900'
+                      : 'border-brand-border dark:border-slate-700 hover:border-brand-blue-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'
                   }`}
                 >
-                  <Icon name="QrCode" size={20} className="text-brand-blue-600 shrink-0" />
+                  <Icon name="QrCode" size={20} className="text-brand-blue-600 dark:text-brand-blue-400 shrink-0" />
                   <div>
-                    <span className="font-display font-bold text-xs text-brand-text-primary block">
+                    <span className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-100 block">
                       QRIS Instan
                     </span>
-                    <span className="text-[10px] text-brand-text-secondary">
+                    <span className="text-[10px] text-brand-text-secondary dark:text-slate-400">
                       BCA, Gopay, Dana, dll
                     </span>
                   </div>
@@ -493,19 +493,19 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                   onClick={() => setPaymentMethod('COD')}
                   className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
                     deliveryMethod === 'PICKUP'
-                      ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200'
+                      ? 'opacity-40 cursor-not-allowed bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                       : paymentMethod === 'COD'
-                      ? 'border-brand-blue-600 bg-brand-blue-50/50 ring-2 ring-brand-blue-100 cursor-pointer'
-                      : 'border-brand-border hover:border-brand-blue-300 bg-white cursor-pointer'
+                      ? 'border-brand-blue-600 bg-brand-blue-50/50 dark:bg-brand-blue-950/40 ring-2 ring-brand-blue-100 dark:ring-brand-blue-900 cursor-pointer'
+                      : 'border-brand-border dark:border-slate-700 hover:border-brand-blue-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 cursor-pointer'
                   }`}
                   title={deliveryMethod === 'PICKUP' ? 'COD hanya tersedia jika diantar tim Ocho' : ''}
                 >
-                  <Icon name="Money" size={20} className="text-emerald-600 shrink-0" />
+                  <Icon name="Money" size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <div>
-                    <span className="font-display font-bold text-xs text-brand-text-primary block">
+                    <span className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-100 block">
                       COD (Tunai)
                     </span>
-                    <span className="text-[10px] text-brand-text-secondary">
+                    <span className="text-[10px] text-brand-text-secondary dark:text-slate-400">
                       Bayar saat kurir tiba
                     </span>
                   </div>
@@ -513,40 +513,40 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
               </div>
 
               {deliveryMethod === 'PICKUP' && (
-                <p className="text-[11px] text-brand-text-secondary italic">
+                <p className="text-[11px] text-brand-text-secondary dark:text-slate-400 italic">
                   * Catatan: COD hanya tersedia untuk pengantaran oleh tim Ocho.
                 </p>
               )}
             </div>
 
             {/* Price Summary Breakdown */}
-            <div className="bg-brand-surface rounded-2xl p-4 border border-brand-border/60 space-y-2.5">
-              <h3 className="font-display font-bold text-xs text-brand-text-primary uppercase tracking-wider">
+            <div className="bg-brand-surface dark:bg-slate-800 rounded-2xl p-4 border border-brand-border/60 dark:border-slate-700 space-y-2.5">
+              <h3 className="font-display font-bold text-xs text-brand-text-primary dark:text-slate-200 uppercase tracking-wider">
                 Rincian Pembayaran
               </h3>
 
-              <div className="flex justify-between text-xs text-brand-text-secondary">
+              <div className="flex justify-between text-xs text-brand-text-secondary dark:text-slate-400">
                 <span>Harga Barang</span>
-                <span className="font-medium text-brand-text-primary">{formatRupiah(item.priceRupiah)}</span>
+                <span className="font-medium text-brand-text-primary dark:text-slate-100">{formatRupiah(item.priceRupiah)}</span>
               </div>
 
-              <div className="flex justify-between text-xs text-brand-text-secondary">
+              <div className="flex justify-between text-xs text-brand-text-secondary dark:text-slate-400">
                 <span>Ongkos Kirim ({deliveryMethod === 'PICKUP' ? 'Pickup' : 'Antar'})</span>
-                <span className="font-medium text-brand-text-primary">
+                <span className="font-medium text-brand-text-primary dark:text-slate-100">
                   {deliveryFee === 0 ? (
-                    <span className="text-emerald-700 font-bold">Gratis</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Gratis</span>
                   ) : (
                     formatRupiah(deliveryFee)
                   )}
                 </span>
               </div>
 
-              <div className="pt-2 border-t border-brand-border/60 flex justify-between items-baseline">
+              <div className="pt-2 border-t border-brand-border/60 dark:border-slate-700 flex justify-between items-baseline">
                 <div>
-                  <span className="font-display font-bold text-sm text-brand-text-primary block">
+                  <span className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100 block">
                     Total Pembayaran
                   </span>
-                  <span className="text-[10px] text-brand-text-secondary">
+                  <span className="text-[10px] text-brand-text-secondary dark:text-slate-400">
                     Sudah termasuk jaminan barang preloved
                   </span>
                 </div>

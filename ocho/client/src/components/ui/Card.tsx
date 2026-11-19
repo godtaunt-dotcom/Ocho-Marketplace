@@ -12,7 +12,7 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white rounded-2xl border border-brand-border shadow-card transition-all duration-200 overflow-hidden ${
+      className={`bg-white dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 shadow-card transition-all duration-200 overflow-hidden ${
         hoverable ? 'hover:shadow-soft hover:-translate-y-0.5 cursor-pointer' : ''
       } ${className}`}
       {...props}
@@ -28,7 +28,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`p-5 pb-3 border-b border-brand-border/60 ${className}`} {...props}>
+    <div className={`p-5 pb-3 border-b border-brand-border/60 dark:border-slate-800 ${className}`} {...props}>
       {children}
     </div>
   );
@@ -41,7 +41,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
 }) => {
   return (
     <h3
-      className={`font-display text-lg font-bold text-brand-text-primary tracking-tight ${className}`}
+      className={`font-display text-lg font-bold text-brand-text-primary dark:text-slate-100 tracking-tight ${className}`}
       {...props}
     >
       {children}
@@ -55,7 +55,7 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
   ...props
 }) => {
   return (
-    <p className={`text-xs text-brand-text-secondary mt-1 leading-relaxed ${className}`} {...props}>
+    <p className={`text-xs text-brand-text-secondary dark:text-slate-400 mt-1 leading-relaxed ${className}`} {...props}>
       {children}
     </p>
   );
