@@ -13,6 +13,9 @@ export interface NavbarProps {
   onWalletClick?: () => void;
   onAdminClick?: () => void;
   onLogoClick?: () => void;
+  onEditUsernameClick?: () => void;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
   searchQuery?: string;
   onSearchChange?: (val: string) => void;
   onSearchSubmit?: () => void;
@@ -28,6 +31,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onWalletClick,
   onAdminClick,
   onLogoClick,
+  onEditUsernameClick,
+  isDarkMode = false,
+  onToggleDarkMode,
   searchQuery = '',
   onSearchChange,
   onSearchSubmit,
@@ -62,9 +68,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-brand-border">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-brand-border dark:border-slate-800 transition-colors">
       {/* Top Banner (Campus Verified Info) */}
-      <div className="bg-[#191c1f] text-white text-[11px] font-medium py-1 px-4 text-center select-none flex items-center justify-center gap-2">
+      <div className="bg-[#191c1f] dark:bg-black text-white text-[11px] font-medium py-1 px-4 text-center select-none flex items-center justify-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         <span>Eksklusif Mahasiswa Unpad &bull; Jatinangor & Dipati Ukur</span>
       </div>
@@ -85,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Logo size="md" />
           </a>
-          <span className="hidden xl:inline-block text-[11px] font-semibold text-[#86868b] bg-[#f5f5f7] px-2.5 py-0.5 rounded-full border border-brand-border">
+          <span className="hidden xl:inline-block text-[11px] font-semibold text-[#86868b] dark:text-slate-400 bg-[#f5f5f7] dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-brand-border dark:border-slate-700">
             Unpad Edition
           </span>
         </div>
@@ -99,20 +105,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="relative"
           >
-            <Icon name="MagnifyingGlass" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-text-secondary" />
+            <Icon name="MagnifyingGlass" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-text-secondary dark:text-slate-400" />
             <input
               type="text"
               value={queryValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder="Cari kasur, kipas angin, buku kuliah, jaket..."
-              className="w-full pl-10 pr-4 py-2 text-xs bg-[#f5f5f7] rounded-full border border-transparent focus:border-brand-border focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue-100 transition-all text-brand-text-primary placeholder:text-brand-text-secondary"
+              className="w-full pl-10 pr-4 py-2 text-xs bg-[#f5f5f7] dark:bg-slate-800 rounded-full border border-transparent focus:border-brand-border dark:focus:border-slate-600 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-blue-100 dark:focus:ring-brand-blue-900 transition-all text-brand-text-primary dark:text-slate-100 placeholder:text-brand-text-secondary dark:placeholder:text-slate-400"
             />
           </form>
         </div>
 
         {/* Module Tabs (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-1 shrink-0 bg-[#f5f5f7] p-1 rounded-full border border-brand-border">
+        <nav className="hidden lg:flex items-center gap-1 shrink-0 bg-[#f5f5f7] dark:bg-slate-800 p-1 rounded-full border border-brand-border dark:border-slate-700">
           {modules.map((m) => {
             const isCurrent = m.id === activeModule;
             return (
@@ -127,15 +133,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   disabled={!m.active}
                   className={`px-3.5 py-1.5 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
                     isCurrent
-                      ? 'bg-white text-brand-text-primary shadow-xs border border-brand-border/40'
+                      ? 'bg-white dark:bg-slate-900 text-brand-text-primary dark:text-slate-100 shadow-xs border border-brand-border/40 dark:border-slate-700'
                       : m.active
-                      ? 'text-brand-text-secondary hover:text-brand-text-primary'
-                      : 'text-brand-text-secondary/60 cursor-not-allowed'
+                      ? 'text-brand-text-secondary dark:text-slate-400 hover:text-brand-text-primary dark:hover:text-slate-200'
+                      : 'text-brand-text-secondary/60 dark:text-slate-500 cursor-not-allowed'
                   }`}
                 >
                   <span>{m.label}</span>
                   {!m.active && (
-                    <span className="text-[10px] bg-brand-border/60 text-brand-text-secondary px-1.5 py-0.2 rounded-full font-medium">
+                    <span className="text-[10px] bg-brand-border/60 dark:bg-slate-700 text-brand-text-secondary dark:text-slate-400 px-1.5 py-0.2 rounded-full font-medium">
                       Segera hadir
                     </span>
                   )}
@@ -153,6 +159,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Dark Mode Toggle */}
+          <button
+            type="button"
+            onClick={onToggleDarkMode}
+            className="p-2 rounded-full text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            title={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
+            aria-label={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
+          >
+            <Icon
+              name={isDarkMode ? 'Sun' : 'Moon'}
+              size={18}
+              className={isDarkMode ? 'text-amber-400' : 'text-slate-600 dark:text-slate-300'}
+            />
+          </button>
+
           {currentUser ? (
             <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Admin Portal Button (Only visible if ADMIN) */}
@@ -161,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={onAdminClick}
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50 text-xs px-2.5 py-1"
+                  className="border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs px-2.5 py-1"
                 >
                   <Icon name="ShieldWarning" size={16} className="mr-1" />
                   Admin
@@ -173,10 +194,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onOrdersClick}
-                className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
+                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs px-2.5 py-1"
                 title="Pesanan Saya"
               >
-                <Icon name="Package" size={16} className="mr-1 text-brand-blue-600" />
+                <Icon name="Package" size={16} className="mr-1 text-brand-blue-600 dark:text-brand-blue-400" />
                 <span className="hidden sm:inline">Pesanan</span>
               </Button>
 
@@ -185,29 +206,34 @@ export const Navbar: React.FC<NavbarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onWalletClick}
-                className="text-brand-text-secondary hover:text-brand-text-primary text-xs px-2.5 py-1"
+                className="text-brand-text-secondary dark:text-slate-300 hover:text-brand-text-primary dark:hover:text-white text-xs px-2.5 py-1"
                 title="Dompet & Saldo"
               >
-                <Icon name="Wallet" size={16} className="mr-1 text-emerald-600" />
+                <Icon name="Wallet" size={16} className="mr-1 text-emerald-600 dark:text-emerald-400" />
                 <span className="hidden sm:inline">Dompet</span>
               </Button>
 
-              {/* User Profile Badge */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f5f5f7] rounded-full border border-brand-border">
-                <div className="w-5 h-5 rounded-full bg-brand-blue-600 text-white font-bold text-[10px] flex items-center justify-center">
-                  {currentUser.name.charAt(0).toUpperCase()}
+              {/* User Profile Badge (Clickable for Username customizer) */}
+              <button
+                type="button"
+                onClick={onEditUsernameClick}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f5f5f7] dark:bg-slate-800 hover:bg-brand-blue-50 dark:hover:bg-slate-700 rounded-full border border-brand-border dark:border-slate-700 hover:border-brand-blue-300 transition-colors cursor-pointer group"
+                title="Klik untuk ubah username toko"
+              >
+                <div className="w-5 h-5 rounded-full bg-brand-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                  {(currentUser.username || currentUser.name).charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-bold text-brand-text-primary hidden md:inline truncate max-w-[100px]">
-                  {currentUser.name}
+                <span className="text-xs font-bold text-brand-text-primary dark:text-slate-200 group-hover:text-brand-blue-600 dark:group-hover:text-brand-blue-400 hidden md:inline truncate max-w-[120px]">
+                  {currentUser.username ? `@${currentUser.username}` : `@${currentUser.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                 </span>
-              </div>
+              </button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 title="Keluar"
                 onClick={onLogoutClick}
-                className="text-brand-text-secondary hover:text-red-600 p-1.5 rounded-full"
+                className="text-brand-text-secondary dark:text-slate-400 hover:text-red-600 p-1.5 rounded-full"
               >
                 <Icon name="SignOut" size={16} ariaLabel="Keluar" />
               </Button>

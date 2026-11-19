@@ -58,23 +58,23 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative w-full ${maxWidthClasses} bg-white rounded-2xl border border-brand-border shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative w-full ${maxWidthClasses} bg-white dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-brand-border">
+        <div className="flex items-center justify-between p-5 border-b border-brand-border dark:border-slate-800">
           <div>
             {title && (
-              <h3 className="font-display text-lg font-bold text-brand-text-primary">
+              <h3 className="font-display text-lg font-bold text-brand-text-primary dark:text-slate-100">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-xs text-brand-text-secondary mt-0.5">{description}</p>
+              <p className="text-xs text-brand-text-secondary dark:text-slate-400 mt-0.5">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-brand-text-secondary hover:text-brand-text-primary hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg text-brand-text-secondary dark:text-slate-400 hover:text-brand-text-primary dark:hover:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
             aria-label="Tutup"
           >
             <Icon name="X" size={20} ariaHidden />
@@ -86,7 +86,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="p-4 px-5 bg-gray-50 border-t border-brand-border flex items-center justify-end gap-2">
+          <div className="p-4 px-5 bg-gray-50 dark:bg-slate-800/80 border-t border-brand-border dark:border-slate-800 flex items-center justify-end gap-2">
             {footer}
           </div>
         )}

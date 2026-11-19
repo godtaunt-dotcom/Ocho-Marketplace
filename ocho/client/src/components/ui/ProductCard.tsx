@@ -20,16 +20,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   const isSold = item.status === 'SOLD';
   const isReserved = item.status === 'RESERVED';
 
+  const sellerHandle = item.seller.username
+    ? `@${item.seller.username}`
+    : `@${item.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  const sellerInitial = (item.seller.username || item.seller.name).charAt(0).toUpperCase();
+
   return (
     <Card
       hoverable={!isSold}
       onClick={() => onClick && onClick(item)}
-      className={`group flex flex-col h-full bg-white border border-brand-border rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${
-        isSold ? 'opacity-70 bg-gray-50' : 'hover:border-brand-blue-300 hover:shadow-card'
+      className={`group flex flex-col h-full bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-800 rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${
+        isSold ? 'opacity-70 bg-gray-50 dark:bg-slate-900/60' : 'hover:border-brand-blue-300 dark:hover:border-slate-700 hover:shadow-card'
       }`}
     >
       {/* Photo Container */}
-      <div className="relative aspect-4/3 w-full bg-brand-surface overflow-hidden">
+      <div className="relative aspect-4/3 w-full bg-brand-surface dark:bg-slate-800 overflow-hidden">
         <img
           src={primaryPhoto}
           alt={item.title}
@@ -41,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
           <Badge variant="category">{item.category.name}</Badge>
           {item.size && (
-            <span className="text-[11px] font-bold bg-white/90 text-brand-text-primary px-2 py-0.5 rounded-md shadow-xs border border-brand-border/60">
+            <span className="text-[11px] font-bold bg-white/90 dark:bg-slate-900/90 text-brand-text-primary dark:text-slate-100 px-2 py-0.5 rounded-md shadow-xs border border-brand-border/60 dark:border-slate-700">
               Size {item.size}
             </span>
           )}
@@ -83,24 +88,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
       <CardContent className="p-4 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-1.5">
           {/* Condition & Upload Time */}
-          <div className="flex items-center justify-between text-[11px] text-brand-text-secondary">
-            <span className="font-semibold text-brand-blue-dark bg-brand-blue-50 px-2 py-0.5 rounded">
+          <div className="flex items-center justify-between text-[11px] text-brand-text-secondary dark:text-slate-400">
+            <span className="font-semibold text-brand-blue-dark dark:text-brand-blue-300 bg-brand-blue-50 dark:bg-brand-blue-950/60 px-2 py-0.5 rounded">
               {item.condition}
             </span>
             <span>{formatRelativeTime(item.createdAt)}</span>
           </div>
 
           {/* Title */}
-          <h3 className="font-display font-bold text-sm text-brand-text-primary line-clamp-2 leading-snug group-hover:text-brand-blue-600 transition-colors">
+          <h3 className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-brand-blue-600 dark:group-hover:text-brand-blue-400 transition-colors">
             {item.title}
           </h3>
         </div>
 
         {/* Pricing & Location */}
-        <div className="pt-2 border-t border-brand-border/60 space-y-2">
+        <div className="pt-2 border-t border-brand-border/60 dark:border-slate-800 space-y-2">
           <div className="flex items-baseline justify-between">
             <div>
-              <span className="text-[10px] text-brand-text-secondary block">Harga Pas</span>
+              <span className="text-[10px] text-brand-text-secondary dark:text-slate-400 block">Harga Pas</span>
               <p className="font-display text-lg font-black text-brand-orange leading-none tabular-nums">
                 {formatRupiah(item.priceRupiah)}
               </p>
@@ -108,7 +113,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
 
             {item.pickupLocation && (
               <span
-                className="text-[11px] text-brand-text-secondary flex items-center gap-1 max-w-[130px] truncate"
+                className="text-[11px] text-brand-text-secondary dark:text-slate-400 flex items-center gap-1 max-w-[130px] truncate"
                 title={item.pickupLocation}
               >
                 <Icon name="MapPin" size={16} className="text-brand-blue-500 shrink-0" />
@@ -117,18 +122,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
             )}
           </div>
 
-          {/* Verified Seller Tag */}
-          <div className="flex items-center justify-between text-[11px] text-brand-text-secondary pt-1">
+          {/* Verified Seller Tag (Custom Student Handle) */}
+          <div className="flex items-center justify-between text-[11px] text-brand-text-secondary dark:text-slate-400 pt-1">
             <div className="flex items-center gap-1.5 truncate">
-              <span className="w-5 h-5 rounded-full bg-brand-blue-100 text-brand-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0">
-                {item.seller.name.charAt(0)}
+              <span className="w-5 h-5 rounded-full bg-brand-blue-100 dark:bg-brand-blue-950 text-brand-blue-700 dark:text-brand-blue-300 flex items-center justify-center font-bold text-[10px] shrink-0">
+                {sellerInitial}
               </span>
-              <span className="truncate font-medium">{item.seller.name}</span>
+              <span className="truncate font-medium text-brand-text-primary dark:text-slate-200">{sellerHandle}</span>
             </div>
 
             {item.seller.isVerified && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded shrink-0 border border-emerald-200">
-                <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded shrink-0 border border-emerald-200 dark:border-emerald-800">
+                <Icon name="ShieldCheck" size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Terverifikasi</span>
               </span>
             )}

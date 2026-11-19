@@ -7,6 +7,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  username?: string | null;
   phone?: string | null;
   role: string;
   isVerified: boolean;
@@ -76,6 +77,7 @@ export async function registerStudent(payload: {
   email: string;
   password: string;
   name: string;
+  username?: string;
   phone?: string;
 }): Promise<AuthResponse> {
   const res = await fetch(`${AUTH_API_BASE}/auth/register`, {
@@ -91,6 +93,33 @@ export async function registerStudent(payload: {
 
   setAuthSession(json.data.token, json.data.user);
   return json;
+}
+
+export async function updateUsername(username: string): Promise<AuthUser> {
+  const token = getStoredToken();
+  if (!token) throw new Error('Sesi login tidak ditemukan');
+
+  const res = await fetch('/api/auth/username', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ username }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || 'Gagal mengubah username');
+  }
+
+  const currentUser = getStoredUser();
+  if (currentUser) {
+    const updatedUser = { ...currentUser, username: json.data.username };
+    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+  }
+
+  return json.data;
 }
 
 export async function loginStudent(payload: {

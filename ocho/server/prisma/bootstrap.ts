@@ -68,6 +68,29 @@ async function main() {
     });
     console.log('[bootstrap] Password akun admin diselaraskan dengan ADMIN_PASSWORD');
   }
+
+  // Backfill username for existing users if null
+  const usersWithoutUsername = await prisma.user.findMany({
+    where: { username: null },
+    select: { id: true, email: true },
+  });
+  for (const u of usersWithoutUsername) {
+    const raw = u.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    let candidate = raw.length >= 3 ? raw.slice(0, 15) : 'user_' + u.id.slice(-6);
+    let finalCandidate = candidate;
+    let counter = 1;
+    while (await prisma.user.findUnique({ where: { username: finalCandidate } })) {
+      finalCandidate = `${candidate}${counter}`;
+      counter++;
+    }
+    await prisma.user.update({
+      where: { id: u.id },
+      data: { username: finalCandidate },
+    });
+  }
+  if (usersWithoutUsername.length > 0) {
+    console.log(`[bootstrap] Mengisi username untuk ${usersWithoutUsername.length} user lama`);
+  }
   }
 }
 

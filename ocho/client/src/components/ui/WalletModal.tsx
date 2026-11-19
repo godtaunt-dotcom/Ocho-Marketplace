@@ -101,16 +101,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             {formatRupiah(data?.currentBalanceRupiah || 0)}
           </p>
           <div className="pt-2 flex justify-between items-center text-[11px] text-brand-blue-200 border-t border-white/20">
-            <span>Penarikan Tertunda: {formatRupiah(data?.pendingWithdrawalRupiah || 0)}</span>
-            <Button
-              variant="secondary"
-              size="sm"
+            <div>
+              <span>Penarikan Tertunda: {formatRupiah(data?.pendingWithdrawalRupiah || 0)}</span>
+              {(data?.currentBalanceRupiah || 0) < 10000 && (
+                <span className="block text-[10px] text-brand-blue-100/80 mt-0.5">Min. penarikan Rp 10.000</span>
+              )}
+            </div>
+            <button
+              type="button"
               disabled={(data?.currentBalanceRupiah || 0) < 10000}
               onClick={() => setShowWithdrawForm(!showWithdrawForm)}
-              className="bg-white text-brand-blue-700 hover:bg-gray-100 text-xs py-1"
+              className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm select-none ${
+                (data?.currentBalanceRupiah || 0) < 10000
+                  ? 'bg-white/20 text-white border border-white/30 cursor-not-allowed opacity-90'
+                  : 'bg-white text-brand-blue-900 hover:bg-brand-blue-50 active:scale-95 cursor-pointer'
+              }`}
+              title={(data?.currentBalanceRupiah || 0) < 10000 ? 'Saldo minimal penarikan adalah Rp 10.000' : 'Tarik saldo ke rekening atau e-wallet'}
             >
               {showWithdrawForm ? 'Batal' : 'Tarik Saldo'}
-            </Button>
+            </button>
           </div>
         </div>
 

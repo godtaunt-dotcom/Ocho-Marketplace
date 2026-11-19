@@ -43,6 +43,8 @@ import {
   ChatCircleDots,
   WhatsappLogo,
   PaperPlaneRight,
+  Sun,
+  Moon,
   IconProps as PhosphorIconProps,
 } from '@phosphor-icons/react';
 
@@ -89,6 +91,8 @@ export type IconName =
   | 'ChatCircleDots'
   | 'WhatsappLogo'
   | 'PaperPlaneRight'
+  | 'Sun'
+  | 'Moon'
   | 'Spinner';
 
 const iconComponentMap: Record<IconName, React.ComponentType<PhosphorIconProps>> = {
@@ -134,6 +138,8 @@ const iconComponentMap: Record<IconName, React.ComponentType<PhosphorIconProps>>
   ChatCircleDots,
   WhatsappLogo,
   PaperPlaneRight,
+  Sun,
+  Moon,
   Spinner: CircleNotch,
 };
 

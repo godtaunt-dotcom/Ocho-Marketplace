@@ -140,7 +140,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   return (
     <div className="space-y-10 pb-16">
       {/* 1. HERO SECTION */}
-      <section className="bg-gradient-to-b from-brand-surface via-brand-surface to-white border-b border-brand-border pt-10 pb-12">
+      <section className="bg-gradient-to-b from-brand-surface via-brand-surface to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 border-b border-brand-border dark:border-slate-800 pt-10 pb-12 transition-colors">
         <div className="max-w-7xl mx-auto px-6 space-y-8">
           {/* Header Title */}
           <div className="max-w-3xl space-y-4">
@@ -149,34 +149,34 @@ export const HomePage: React.FC<HomePageProps> = ({
               <span>Khusus Mahasiswa Unpad Jatinangor</span>
             </div>
 
-            <h1 className="font-display font-black text-4xl lg:text-5xl text-brand-text-primary tracking-tight leading-tight">
+            <h1 className="font-display font-black text-4xl lg:text-5xl text-brand-text-primary dark:text-slate-100 tracking-tight leading-tight">
               Jual, beli, sewa, dan titip.{' '}
-              <span className="text-brand-blue-600 block mt-1">Sesama mahasiswa.</span>
+              <span className="text-brand-blue-600 dark:text-brand-blue-400 block mt-1">Sesama mahasiswa.</span>
             </h1>
 
-            <p className="text-base text-brand-text-secondary leading-relaxed">
+            <p className="text-base text-brand-text-secondary dark:text-slate-400 leading-relaxed">
               Platform barang preloved aman dan transparan di sekitar kampus Unpad Jatinangor.
               Beli perlengkapan kos, buku kuliah, dan fashion tanpa was-was penipuan.
             </p>
           </div>
 
           {/* 3-Step Verification Panel */}
-          <div className="bg-white rounded-2xl border border-brand-border shadow-xs p-6 lg:p-7">
-            <div className="flex items-center justify-between pb-5 border-b border-brand-border/60">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 shadow-xs p-6 lg:p-7">
+            <div className="flex items-center justify-between pb-5 border-b border-brand-border/60 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-brand-blue-50 text-brand-blue-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-brand-blue-50 dark:bg-brand-blue-950/60 text-brand-blue-600 dark:text-brand-blue-400 flex items-center justify-center font-bold">
                   <Icon name="Sparkle" size={16} />
                 </div>
                 <div>
-                  <h2 className="font-display font-bold text-base text-brand-text-primary">
+                  <h2 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
                     Verifikasi sekali, langsung jalan
                   </h2>
-                  <p className="text-xs text-brand-text-secondary">
+                  <p className="text-xs text-brand-text-secondary dark:text-slate-400">
                     Hanya butuh 1 menit untuk membuka akses transaksi aman di Ocho.
                   </p>
                 </div>
               </div>
-              <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                 100% Komunitas Kampus
               </span>
             </div>
@@ -240,7 +240,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
               selectedCategory === 'semua'
                 ? 'bg-brand-blue-600 text-white shadow-xs'
-                : 'bg-white text-brand-text-secondary border border-brand-border hover:border-brand-blue-300 hover:text-brand-text-primary'
+                : 'bg-white dark:bg-slate-900 text-brand-text-secondary dark:text-slate-400 border border-brand-border dark:border-slate-800 hover:border-brand-blue-300 dark:hover:border-slate-700 hover:text-brand-text-primary dark:hover:text-slate-200'
             }`}
           >
             Semua Kategori
@@ -256,7 +256,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 flex items-center gap-2 transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-brand-blue-600 text-white shadow-xs'
-                    : 'bg-white text-brand-text-secondary border border-brand-border hover:border-brand-blue-300 hover:text-brand-text-primary'
+                    : 'bg-white dark:bg-slate-900 text-brand-text-secondary dark:text-slate-400 border border-brand-border dark:border-slate-800 hover:border-brand-blue-300 dark:hover:border-slate-700 hover:text-brand-text-primary dark:hover:text-slate-200'
                 }`}
               >
                 <span>{cat.name}</span>
@@ -265,7 +265,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
                       isSelected
                         ? 'bg-white/20 text-white'
-                        : 'bg-brand-surface text-brand-text-secondary'
+                        : 'bg-brand-surface dark:bg-slate-800 text-brand-text-secondary dark:text-slate-400'
                     }`}
                   >
                     {cat.activeItemCount}
@@ -279,7 +279,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* 3. MULTI-FILTER TOOLBAR */}
       <section className="max-w-7xl mx-auto px-6">
-        <div className="bg-white rounded-2xl border border-brand-border p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-brand-border dark:border-slate-800 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
           {/* Left filters: Search + Condition + Delivery Method */}
           <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
             {/* Quick search input within toolbar */}

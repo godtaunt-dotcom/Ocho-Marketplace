@@ -221,10 +221,10 @@ ordersRouter.post('/', requireAuth, async (req: AuthenticatedRequest, res: Respo
             include: { photos: true, category: true },
           },
           seller: {
-            select: { id: true, name: true, phone: true, isVerified: true },
+            select: { id: true, name: true, username: true, phone: true, isVerified: true },
           },
           buyer: {
-            select: { id: true, name: true, email: true, phone: true },
+            select: { id: true, name: true, username: true, email: true, phone: true },
           },
           payment: true,
         },
@@ -289,14 +289,14 @@ ordersRouter.get('/', requireAuth, async (req: AuthenticatedRequest, res: Respon
             category: { select: { name: true } },
           },
         },
-        buyer: { select: { id: true, name: true, phone: true } },
-        seller: { select: { id: true, name: true, phone: true } },
+        buyer: { select: { id: true, name: true, username: true, phone: true } },
+        seller: { select: { id: true, name: true, username: true, phone: true } },
         payment: true,
         review: true,
         messages: {
           include: {
             sender: {
-              select: { id: true, name: true, phone: true },
+              select: { id: true, name: true, username: true, phone: true },
             },
           },
           orderBy: { createdAt: 'asc' },
@@ -325,17 +325,17 @@ ordersRouter.get('/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
           include: { photos: true, category: true },
         },
         seller: {
-          select: { id: true, name: true, phone: true, isVerified: true, email: true },
+          select: { id: true, name: true, username: true, phone: true, isVerified: true, email: true },
         },
         buyer: {
-          select: { id: true, name: true, phone: true, isVerified: true, email: true },
+          select: { id: true, name: true, username: true, phone: true, isVerified: true, email: true },
         },
         payment: true,
         review: true,
         messages: {
           include: {
             sender: {
-              select: { id: true, name: true, phone: true },
+              select: { id: true, name: true, username: true, phone: true },
             },
           },
           orderBy: { createdAt: 'asc' },
@@ -589,8 +589,8 @@ ordersRouter.post('/:id/confirm-payment', requireAuth, async (req: Authenticated
         },
         include: {
           item: { include: { photos: true, category: true } },
-          seller: { select: { id: true, name: true, phone: true } },
-          buyer: { select: { id: true, name: true, phone: true } },
+          seller: { select: { id: true, name: true, username: true, phone: true } },
+          buyer: { select: { id: true, name: true, username: true, phone: true } },
           payment: true,
         },
       });
@@ -633,7 +633,7 @@ ordersRouter.get('/:id/messages', requireAuth, async (req: AuthenticatedRequest,
       orderBy: { createdAt: 'asc' },
       include: {
         sender: {
-          select: { id: true, name: true, avatarUrl: true, role: true },
+          select: { id: true, name: true, username: true, avatarUrl: true, role: true },
         },
       },
     });
@@ -680,7 +680,7 @@ ordersRouter.post('/:id/messages', requireAuth, async (req: AuthenticatedRequest
       },
       include: {
         sender: {
-          select: { id: true, name: true, avatarUrl: true, role: true },
+          select: { id: true, name: true, username: true, avatarUrl: true, role: true },
         },
       },
     });

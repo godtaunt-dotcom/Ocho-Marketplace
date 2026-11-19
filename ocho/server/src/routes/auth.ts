@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword } from '../utils/auth';
 import { createToken } from '../utils/token';
 import { isAllowedCampusEmail, resolveAllowedEmailDomains } from '../config/business';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
+import { validateUsername } from '../utils/username';
 
 export const authRouter = Router();
 
@@ -12,6 +13,7 @@ const registerSchema = z.object({
   email: z.string().email('Format email tidak valid').toLowerCase().trim(),
   password: z.string().min(8, 'Password minimal 8 karakter'),
   name: z.string().min(2, 'Nama minimal 2 karakter').max(100),
+  username: z.string().optional(),
   phone: z.string().optional(),
 });
 
@@ -64,11 +66,36 @@ authRouter.post('/register', async (req: Request, res: Response, next: NextFunct
     // Hash password using native scrypt
     const passwordHash = hashPassword(data.password);
 
+    // Validate or auto-generate unique campus username
+    let finalUsername: string | null = null;
+    if (data.username && data.username.trim()) {
+      const v = validateUsername(data.username);
+      if (!v.valid) {
+        res.status(400).json({ error: 'Bad Request', message: v.message });
+        return;
+      }
+      const taken = await prisma.user.findUnique({ where: { username: v.normalizedUsername } });
+      if (taken) {
+        res.status(409).json({ error: 'Conflict', message: 'Username sudah digunakan oleh mahasiswa lain. Silakan pilih username lain.' });
+        return;
+      }
+      finalUsername = v.normalizedUsername!;
+    } else {
+      const base = data.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+      let candidate = base.length >= 3 ? base.slice(0, 20) : `mhs_${base}`;
+      const exists = await prisma.user.findUnique({ where: { username: candidate } });
+      if (exists) {
+        candidate = `${candidate.slice(0, 16)}_${Math.floor(10 + Math.random() * 89)}`;
+      }
+      finalUsername = candidate;
+    }
+
     // Strategy A: Automatically mark as verified via campus email link, or pending verification
     // Default: Created as verified since campus email ownership is verified via link
     const user = await prisma.user.create({
       data: {
         email: data.email,
+        username: finalUsername,
         passwordHash,
         name: data.name,
         phone: data.phone || null,
@@ -81,6 +108,7 @@ authRouter.post('/register', async (req: Request, res: Response, next: NextFunct
       select: {
         id: true,
         email: true,
+        username: true,
         name: true,
         phone: true,
         role: true,
@@ -162,6 +190,7 @@ authRouter.post('/login', async (req: Request, res: Response, next: NextFunction
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           name: user.name,
           phone: user.phone,
           role: user.role,
@@ -220,6 +249,7 @@ authRouter.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Respon
       data: {
         id: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
         phone: user.phone,
         avatarUrl: user.avatarUrl,
@@ -236,6 +266,59 @@ authRouter.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Respon
           reviewsCount: user._count.reviewsReceived,
         },
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * PATCH /api/auth/username
+ * Set or change custom username with anti-SARA / anti-racism moderation.
+ */
+authRouter.patch('/username', requireAuth, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const rawUsername = req.body?.username;
+    const v = validateUsername(rawUsername);
+    if (!v.valid) {
+      res.status(400).json({ error: 'Bad Request', message: v.message });
+      return;
+    }
+
+    const normalized = v.normalizedUsername!;
+
+    // Check if taken by another user
+    const taken = await prisma.user.findFirst({
+      where: {
+        username: normalized,
+        id: { not: req.user!.id },
+      },
+    });
+
+    if (taken) {
+      res.status(409).json({
+        error: 'Conflict',
+        message: 'Username ini sudah digunakan oleh mahasiswa lain. Silakan pilih username lain.',
+      });
+      return;
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { username: normalized },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        role: true,
+        isVerified: true,
+      },
+    });
+
+    res.json({
+      message: 'Username berhasil diperbarui!',
+      data: updated,
     });
   } catch (err) {
     next(err);

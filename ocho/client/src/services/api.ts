@@ -47,6 +47,7 @@ export interface ItemSummary {
   seller: {
     id: string;
     name: string;
+    username?: string | null;
     isVerified: boolean;
     campus?: {
       name: string;
@@ -75,6 +76,7 @@ export interface ItemDetail extends ItemSummary {
   seller: {
     id: string;
     name: string;
+    username?: string | null;
     isVerified: boolean;
     verifiedAt: string | null;
     createdAt: string;
@@ -108,6 +110,7 @@ export interface OrderMessageItem {
   sender: {
     id: string;
     name: string;
+    username?: string | null;
     phone?: string | null;
     avatarUrl?: string | null;
     role?: string;
@@ -143,8 +146,8 @@ export interface OrderItem {
     photos: ItemPhoto[];
     category?: { name: string };
   };
-  buyer: { id: string; name: string; phone?: string; email?: string };
-  seller: { id: string; name: string; phone?: string; email?: string; isVerified?: boolean };
+  buyer: { id: string; name: string; username?: string | null; phone?: string; email?: string };
+  seller: { id: string; name: string; username?: string | null; phone?: string; email?: string; isVerified?: boolean };
   payment?: {
     id: string;
     paymentType: string;

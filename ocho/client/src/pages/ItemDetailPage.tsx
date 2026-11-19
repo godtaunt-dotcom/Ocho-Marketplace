@@ -235,46 +235,46 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           </div>
 
           {/* 2. Key Attributes (Mandatory Fashion Size & Brand) */}
-          <div className="bg-white border border-brand-border rounded-2xl p-6 space-y-4">
-            <h2 className="font-display font-bold text-base text-brand-text-primary">
+          <div className="bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-800 rounded-2xl p-6 space-y-4">
+            <h2 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
               Spesifikasi Barang
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
-              <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                <span className="text-brand-text-secondary block mb-1">Kondisi</span>
-                <span className="font-bold text-brand-text-primary text-sm">{item.condition}</span>
+              <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Kondisi</span>
+                <span className="font-bold text-brand-text-primary dark:text-slate-200 text-sm">{item.condition}</span>
               </div>
 
               {item.size && (
-                <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                  <span className="text-brand-text-secondary block mb-1">Ukuran (Size)</span>
-                  <span className="font-bold text-brand-blue-600 text-sm">{item.size}</span>
+                <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                  <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Ukuran (Size)</span>
+                  <span className="font-bold text-brand-blue-600 dark:text-brand-blue-400 text-sm">{item.size}</span>
                 </div>
               )}
 
               {item.brand && (
-                <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                  <span className="text-brand-text-secondary block mb-1">Merek / Brand</span>
-                  <span className="font-bold text-brand-text-primary text-sm">{item.brand}</span>
+                <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                  <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Merek / Brand</span>
+                  <span className="font-bold text-brand-text-primary dark:text-slate-200 text-sm">{item.brand}</span>
                 </div>
               )}
 
-              <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                <span className="text-brand-text-secondary block mb-1">Opsi Pengambilan</span>
-                <span className="font-bold text-brand-text-primary text-sm">
+              <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Opsi Pengambilan</span>
+                <span className="font-bold text-brand-text-primary dark:text-slate-200 text-sm">
                   {isPickupOnly ? 'Hanya Pickup' : 'Pickup & Antar'}
                 </span>
               </div>
 
-              <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                <span className="text-brand-text-secondary block mb-1">Jumlah Unit</span>
-                <span className="font-bold text-brand-text-primary text-sm">1 Unit (Preloved)</span>
+              <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Jumlah Unit</span>
+                <span className="font-bold text-brand-text-primary dark:text-slate-200 text-sm">1 Unit (Preloved)</span>
               </div>
 
-              <div className="bg-brand-surface p-3 rounded-xl border border-brand-border/60">
-                <span className="text-brand-text-secondary block mb-1">Waktu Unggah</span>
-                <span className="font-bold text-brand-text-primary text-sm">
+              <div className="bg-brand-surface dark:bg-slate-800 p-3 rounded-xl border border-brand-border/60 dark:border-slate-700">
+                <span className="text-brand-text-secondary dark:text-slate-400 block mb-1">Waktu Unggah</span>
+                <span className="font-bold text-brand-text-primary dark:text-slate-200 text-sm">
                   {formatRelativeTime(item.createdAt)}
                 </span>
               </div>
@@ -282,29 +282,29 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           </div>
 
           {/* 3. Full Description */}
-          <div className="bg-white border border-brand-border rounded-2xl p-6 space-y-3">
-            <h2 className="font-display font-bold text-base text-brand-text-primary">
+          <div className="bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-800 rounded-2xl p-6 space-y-3">
+            <h2 className="font-display font-bold text-base text-brand-text-primary dark:text-slate-100">
               Deskripsi Lengkap
             </h2>
-            <div className="text-sm text-brand-text-primary leading-relaxed whitespace-pre-line">
+            <div className="text-sm text-brand-text-primary dark:text-slate-200 leading-relaxed whitespace-pre-line">
               {item.description}
             </div>
           </div>
 
           {/* 4. Pickup Location */}
           {item.pickupLocation && (
-            <div className="bg-brand-surface border border-brand-border rounded-2xl p-5 flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-white border border-brand-border flex items-center justify-center text-brand-blue-600 shrink-0 shadow-2xs">
+            <div className="bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-2xl p-5 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-700 flex items-center justify-center text-brand-blue-600 dark:text-brand-blue-400 shrink-0 shadow-2xs">
                 <Icon name="MapPin" size={20} />
               </div>
               <div className="space-y-1">
-                <h4 className="font-display font-bold text-sm text-brand-text-primary">
+                <h4 className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100">
                   Titik Temu Rekomendasi Penjual
                 </h4>
-                <p className="text-xs text-brand-text-secondary leading-relaxed">
+                <p className="text-xs text-brand-text-secondary dark:text-slate-300 leading-relaxed">
                   {item.pickupLocation}
                 </p>
-                <p className="text-[11px] text-brand-blue-700 font-medium">
+                <p className="text-[11px] text-brand-blue-700 dark:text-brand-blue-400 font-medium">
                   Disarankan bertemu di area publik kampus (Gerlam, Bale Santika, atau Perpustakaan CISRAL).
                 </p>
               </div>
@@ -313,15 +313,15 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
           {/* 5. Safe Trading Notice & Report Button */}
           <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-2 text-xs text-brand-text-secondary">
-              <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
+            <div className="flex items-center gap-2 text-xs text-brand-text-secondary dark:text-slate-400">
+              <Icon name="ShieldCheck" size={16} className="text-emerald-600 dark:text-emerald-400" />
               <span>Semua akun penjual terverifikasi mahasiswa Unpad.</span>
             </div>
 
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
             >
               <Icon name="Flag" size={16} />
               <span>Laporkan Barang</span>
@@ -331,10 +331,10 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
         {/* ================= RIGHT COLUMN: Sticky Seller & Checkout Card (5 Cols) ================= */}
         <div className="lg:col-span-5 sticky top-24 space-y-6">
-          <Card className="bg-white border border-brand-border rounded-3xl p-6 shadow-card space-y-6">
+          <Card className="bg-white dark:bg-slate-900 border border-brand-border dark:border-slate-800 rounded-3xl p-6 shadow-card space-y-6">
             {/* Header: Title & Price */}
-            <div className="space-y-2 pb-4 border-b border-brand-border/60">
-              <h1 className="font-display font-black text-2xl text-brand-text-primary leading-snug">
+            <div className="space-y-2 pb-4 border-b border-brand-border/60 dark:border-slate-800">
+              <h1 className="font-display font-black text-2xl text-brand-text-primary dark:text-slate-100 leading-snug">
                 {item.title}
               </h1>
 
@@ -342,46 +342,46 @@ export const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
                 <span className="font-display font-black text-3xl text-brand-orange">
                   {formatRupiah(item.priceRupiah)}
                 </span>
-                <span className="text-xs font-semibold text-brand-text-secondary">
+                <span className="text-xs font-semibold text-brand-text-secondary dark:text-slate-400">
                   (Harga pas, tanpa biaya admin pembeli)
                 </span>
               </div>
             </div>
 
-            {/* Seller Profile Card */}
-            <div className="bg-brand-surface rounded-2xl p-4 border border-brand-border/60 space-y-3">
+            {/* Seller Profile Card (Shielded with Username Handle) */}
+            <div className="bg-brand-surface dark:bg-slate-800 rounded-2xl p-4 border border-brand-border/60 dark:border-slate-700 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-brand-blue-600 text-white font-bold flex items-center justify-center text-base shadow-xs">
-                    {item.seller.name.charAt(0)}
+                    {(item.seller.username || item.seller.name).charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-display font-bold text-sm text-brand-text-primary">
-                        {item.seller.name}
+                      <span className="font-display font-bold text-sm text-brand-text-primary dark:text-slate-100">
+                        {item.seller.username ? `@${item.seller.username}` : `@${item.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                       </span>
                       {item.seller.isVerified && (
                         <span title="Mahasiswa Terverifikasi">
-                          <Icon name="ShieldCheck" size={16} className="text-emerald-600" />
+                          <Icon name="ShieldCheck" size={16} className="text-emerald-600 dark:text-emerald-400" />
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-brand-text-secondary block">
+                    <span className="text-xs text-brand-text-secondary dark:text-slate-400 block">
                       {item.seller.campus?.name || 'Universitas Padjadjaran'}
                     </span>
                   </div>
                 </div>
 
-                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                   Terverifikasi
                 </span>
               </div>
 
               {/* Rating & Reviews summary */}
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-brand-border/40 text-brand-text-secondary">
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-brand-border/40 dark:border-slate-700 text-brand-text-secondary dark:text-slate-400">
                 <div className="flex items-center gap-1">
                   <Icon name="Star" size={16} weight="fill" className="text-amber-500" />
-                  <span className="font-bold text-brand-text-primary tabular-nums">
+                  <span className="font-bold text-brand-text-primary dark:text-slate-200 tabular-nums">
                     {item.seller.averageRating ? item.seller.averageRating.toFixed(1) : '5.0'}
                   </span>
                   <span>({item.seller.reviewCount || 1} ulasan selesai)</span>

@@ -21,6 +21,7 @@ import {
   getStoredToken,
   loginStudent,
   registerStudent,
+  updateUsername,
   fetchCurrentProfile,
   clearAuthSession,
 } from './services/auth';
@@ -44,9 +45,34 @@ export const App: React.FC = () => {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
+  const [authUsername, setAuthUsername] = useState('');
   const [authPhone, setAuthPhone] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+
+  // Username customization state
+  const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false);
+  const [newUsernameInput, setNewUsernameInput] = useState('');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
+  const [usernameUpdating, setUsernameUpdating] = useState(false);
+
+  // Dark mode theme state (persisted in localStorage)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('ocho_theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('ocho_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('ocho_theme', 'light');
+    }
+  }, [isDarkMode]);
 
   // Modals state
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -146,6 +172,7 @@ export const App: React.FC = () => {
           password: authPassword,
           name: authName,
           phone: authPhone,
+          username: authUsername.trim() || undefined,
         });
         setCurrentUser(res.data.user);
         setIsLoginModalOpen(false);
@@ -154,6 +181,33 @@ export const App: React.FC = () => {
       setAuthError(err.message || 'Terjadi kesalahan autentikasi');
     } finally {
       setAuthLoading(false);
+    }
+  };
+
+  const openEditUsername = () => {
+    setNewUsernameInput(currentUser?.username || '');
+    setUsernameError(null);
+    setUsernameSuccess(null);
+    setIsUsernameModalOpen(true);
+  };
+
+  const handleUpdateUsername = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUsernameError(null);
+    setUsernameSuccess(null);
+    setUsernameUpdating(true);
+    try {
+      const updatedUser = await updateUsername(newUsernameInput);
+      setCurrentUser(updatedUser);
+      setUsernameSuccess('Username berhasil diperbarui!');
+      setTimeout(() => {
+        setIsUsernameModalOpen(false);
+        setUsernameSuccess(null);
+      }, 1200);
+    } catch (err: any) {
+      setUsernameError(err.message || 'Gagal memperbarui username.');
+    } finally {
+      setUsernameUpdating(false);
     }
   };
 
@@ -233,10 +287,13 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-surface font-sans text-brand-text-primary flex flex-col">
+    <div className="min-h-screen bg-brand-surface dark:bg-slate-950 font-sans text-brand-text-primary dark:text-slate-100 flex flex-col transition-colors">
       {/* 1. Global Navigation Bar */}
       <Navbar
         currentUser={currentUser}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
+        onEditUsernameClick={openEditUsername}
         onLoginClick={() => {
           setAuthError(null);
           setIsLoginModalOpen(true);
@@ -474,6 +531,27 @@ export const App: React.FC = () => {
               </div>
             )}
 
+            {authMode === 'REGISTER' && (
+              <div>
+                <label className="block text-xs font-bold text-brand-text-primary mb-1">
+                  Username Toko / Profil (Publik)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary text-xs font-bold">@</span>
+                  <input
+                    type="text"
+                    placeholder="nama_unik (opsional, default dari email)"
+                    value={authUsername}
+                    onChange={(e) => setAuthUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+                    className="w-full pl-7 pr-3 py-2 text-xs bg-brand-surface border border-brand-border rounded-xl focus:border-brand-blue-500 focus:bg-white focus:outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-brand-text-secondary mt-1">
+                  Nama asli Anda aman & tidak dipublikasikan ke pembeli. Dilarang unsur SARA, rasisme, atau kata kasar.
+                </p>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold text-brand-text-primary mb-1">
                 Email Kampus Unpad
@@ -537,6 +615,73 @@ export const App: React.FC = () => {
             </div>
           </form>
         </div>
+      </Modal>
+
+      {/* Ubah Username Modal */}
+      <Modal
+        isOpen={isUsernameModalOpen}
+        onClose={() => {
+          setIsUsernameModalOpen(false);
+          setUsernameError(null);
+          setUsernameSuccess(null);
+        }}
+        title="Ubah Username Toko & Profil"
+        description="Username ini yang akan dilihat oleh mahasiswa lain di Ocho (nama asli Anda disembunyikan demi privasi)."
+      >
+        <form onSubmit={handleUpdateUsername} className="space-y-4 py-2">
+          {usernameError && (
+            <div className="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs p-3 rounded-xl flex items-start gap-2">
+              <Icon name="WarningCircle" size={16} className="shrink-0 mt-0.5" />
+              <span>{usernameError}</span>
+            </div>
+          )}
+
+          {usernameSuccess && (
+            <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs p-3 rounded-xl flex items-start gap-2">
+              <Icon name="CheckCircle" size={16} className="shrink-0 mt-0.5" />
+              <span>{usernameSuccess}</span>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-brand-text-primary dark:text-slate-200 mb-1">
+              Username Baru
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-secondary dark:text-slate-400 text-xs font-bold">@</span>
+              <input
+                type="text"
+                required
+                placeholder="anak_unpad / lapak_jatinangor"
+                value={newUsernameInput}
+                onChange={(e) => setNewUsernameInput(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+                className="w-full pl-7 pr-3 py-2 text-xs bg-brand-surface dark:bg-slate-800 border border-brand-border dark:border-slate-700 rounded-xl focus:border-brand-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-brand-text-primary dark:text-slate-100"
+              />
+            </div>
+            <p className="text-[11px] text-brand-text-secondary dark:text-slate-400 mt-1.5 leading-relaxed">
+              Aturan: 3-20 karakter, huruf kecil, angka, titik (.) atau garis bawah (_). Dilarang keras mengandung unsur <strong>SARA, rasisme, ujaran kebencian, kata kasar, atau impersonasi admin</strong>.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsUsernameModalOpen(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={usernameUpdating || !newUsernameInput.trim()}
+            >
+              {usernameUpdating ? 'Menyimpan...' : 'Simpan Username'}
+            </Button>
+          </div>
+        </form>
       </Modal>
 
       {/* 5. Sell Modal (Fully Functional) */}
@@ -719,7 +864,10 @@ export const App: React.FC = () => {
                     {checkoutModalItem.item.title}
                   </h4>
                   <p className="text-xs text-brand-text-secondary">
-                    Penjual: {checkoutModalItem.item.seller.name}
+                    Penjual:{' '}
+                    {checkoutModalItem.item.seller.username
+                      ? `@${checkoutModalItem.item.seller.username}`
+                      : `@${checkoutModalItem.item.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                   </p>
                   <p className="text-xs font-black text-brand-orange">
                     {formatRupiah(checkoutModalItem.item.priceRupiah)}

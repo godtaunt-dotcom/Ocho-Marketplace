@@ -323,11 +323,26 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                   >
                     {order.item.title}
                   </h4>
-                  <p className="text-xs text-brand-text-secondary">
+                  <p className="text-xs text-brand-text-secondary dark:text-slate-400">
                     {roleTab === 'buyer' ? (
-                      <>Penjual: <strong>{order.seller.name}</strong></>
+                      <>
+                        Penjual:{' '}
+                        <strong className="text-brand-text-primary dark:text-slate-200">
+                          {order.seller.username
+                            ? `@${order.seller.username}`
+                            : `@${order.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                        </strong>
+                      </>
                     ) : (
-                      <>Pembeli: <strong>{order.buyer.name}</strong> ({order.buyerPhone})</>
+                      <>
+                        Pembeli:{' '}
+                        <strong className="text-brand-text-primary dark:text-slate-200">
+                          {order.buyer.username
+                            ? `@${order.buyer.username}`
+                            : `@${order.buyer.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                        </strong>{' '}
+                        ({order.buyerPhone})
+                      </>
                     )}
                   </p>
                   {order.deliveryAddress && (
@@ -632,16 +647,22 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
         >
           <div className="space-y-4 py-2">
             {/* Header info about counterpart */}
-            <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-surface rounded-xl border border-brand-border text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-surface dark:bg-slate-800 rounded-xl border border-brand-border dark:border-slate-700 text-xs">
               <div>
-                <span className="text-brand-text-secondary">
+                <span className="text-brand-text-secondary dark:text-slate-400">
                   {roleTab === 'buyer' ? 'Penjual: ' : 'Pembeli: '}
                 </span>
-                <strong className="text-brand-text-primary">
-                  {roleTab === 'buyer' ? chatOrder.seller.name : chatOrder.buyer.name}
+                <strong className="text-brand-text-primary dark:text-slate-200">
+                  {roleTab === 'buyer'
+                    ? chatOrder.seller.username
+                      ? `@${chatOrder.seller.username}`
+                      : `@${chatOrder.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+                    : chatOrder.buyer.username
+                    ? `@${chatOrder.buyer.username}`
+                    : `@${chatOrder.buyer.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
                 </strong>
                 {roleTab === 'buyer' && chatOrder.seller.isVerified && (
-                  <span className="ml-1.5 inline-flex items-center text-[10px] text-brand-blue-600 bg-brand-blue-50 px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="ml-1.5 inline-flex items-center text-[10px] text-brand-blue-600 dark:text-brand-blue-400 bg-brand-blue-50 dark:bg-brand-blue-950/60 px-1.5 py-0.5 rounded-full font-bold">
                     Terverifikasi
                   </span>
                 )}
@@ -713,8 +734,16 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                       key={msg.id}
                       className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                     >
-                      <div className="flex items-center gap-1 text-[10px] text-brand-text-secondary mb-0.5">
-                        <span className="font-bold">{isMe ? 'Anda' : msg.sender?.name}</span>
+                      <div className="flex items-center gap-1 text-[10px] text-brand-text-secondary dark:text-slate-400 mb-0.5">
+                        <span className="font-bold">
+                          {isMe
+                            ? 'Anda'
+                            : msg.sender?.username
+                            ? `@${msg.sender.username}`
+                            : msg.sender?.name
+                            ? `@${msg.sender.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+                            : 'Mahasiswa'}
+                        </span>
                         <span>&bull;</span>
                         <span>{formatDateTime(msg.createdAt)}</span>
                       </div>
@@ -722,7 +751,7 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
                         className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
                           isMe
                             ? 'bg-brand-blue-600 text-white rounded-tr-xs shadow-xs'
-                            : 'bg-white text-brand-text-primary border border-brand-border rounded-tl-xs shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-brand-text-primary dark:text-slate-100 border border-brand-border dark:border-slate-700 rounded-tl-xs shadow-xs'
                         }`}
                       >
                         {msg.message}
@@ -793,7 +822,11 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToHome, onViewItem
           isOpen={true}
           onClose={() => setReviewOrder(null)}
           title="Beri Ulasan Penjual"
-          description={`Bagikan pengalaman belanjamu dari ${reviewOrder.seller.name}`}
+          description={`Bagikan pengalaman belanjamu dari ${
+            reviewOrder.seller.username
+              ? `@${reviewOrder.seller.username}`
+              : `@${reviewOrder.seller.name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+          }`}
         >
           <div className="space-y-4 py-2">
             <div>

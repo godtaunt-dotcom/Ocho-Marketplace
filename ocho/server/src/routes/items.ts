@@ -137,7 +137,7 @@ itemsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => 
             select: { id: true, name: true, slug: true, allowedDelivery: true },
           },
           seller: {
-            select: { id: true, name: true, isVerified: true, campus: { select: { name: true, code: true } } },
+            select: { id: true, name: true, username: true, isVerified: true, campus: { select: { name: true, code: true } } },
           },
           photos: {
             orderBy: { displayOrder: 'asc' },
@@ -220,6 +220,7 @@ itemsRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
           select: {
             id: true,
             name: true,
+            username: true,
             isVerified: true,
             verifiedAt: true,
             createdAt: true,
