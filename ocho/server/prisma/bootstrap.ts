@@ -38,8 +38,9 @@ async function main() {
 
   const adminEmail = 'admin@mail.unpad.ac.id';
   const admin = await prisma.user.findUnique({ where: { email: adminEmail } });
+  const password = process.env.ADMIN_PASSWORD;
+
   if (!admin) {
-    const password = process.env.ADMIN_PASSWORD;
     if (!password || password.length < 8) {
       console.warn('[bootstrap] ADMIN_PASSWORD belum diatur (min. 8 karakter), akun admin dilewati.');
       return;
@@ -58,6 +59,15 @@ async function main() {
       },
     });
     console.log('[bootstrap] Akun admin dibuat');
+  } else if (password && password.length >= 8) {
+    await prisma.user.update({
+      where: { email: adminEmail },
+      data: {
+        passwordHash: hashPassword(password),
+      },
+    });
+    console.log('[bootstrap] Password akun admin diselaraskan dengan ADMIN_PASSWORD');
+  }
   }
 }
 
