@@ -91,7 +91,6 @@ async function main() {
   if (usersWithoutUsername.length > 0) {
     console.log(`[bootstrap] Mengisi username untuk ${usersWithoutUsername.length} user lama`);
   }
-  }
 }
 
 main()
