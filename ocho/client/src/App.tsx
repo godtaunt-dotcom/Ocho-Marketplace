@@ -57,11 +57,10 @@ export const App: React.FC = () => {
   const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
   const [usernameUpdating, setUsernameUpdating] = useState(false);
 
-  // Dark mode theme state (persisted in localStorage)
+  // Theme state: Light mode is default for all new visitors
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('ocho_theme');
-    if (saved) return saved === 'dark';
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return saved === 'dark'; // Only dark if user explicitly chose it; defaults to light mode
   });
 
   useEffect(() => {
